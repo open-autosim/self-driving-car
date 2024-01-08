@@ -1,13 +1,22 @@
-# Binaries
-*.exe
-*.dll
+# Compiled object files, libraries, and executables
+*.o
+*.ko
+*.obj
+*.elf
 *.so
 *.dylib
+*.out
+main
+main.dsym/
 
-# Object files
-*.o
-*.obj
+# macOS specific files
+.DS_Store
 
-# Build artifacts
+# Build and dependency directories
 build/
-dist/
+dependencies/
+
+# IDE specific files
+.vscode/
+.idea/
+
