@@ -3,16 +3,18 @@
 #include <cmath>
 #include "utils.h"
 
+const int MAX_INT = 20000;
+
 Road::Road(float x, float width, int laneCount)
     : x(x), width(width), laneCount(laneCount) {
     left = x - width / 2;
     right = x + width / 2;
 
     // Define the road borders
-    borders.push_back(sf::Vector2f(left, -10000));  // Top left
-    borders.push_back(sf::Vector2f(left, 10000));   // Bottom left
-    borders.push_back(sf::Vector2f(right, -10000)); // Top right
-    borders.push_back(sf::Vector2f(right, 10000));  // Bottom right
+    borders.push_back(sf::Vector2f(left, -MAX_INT));  // Top left
+    borders.push_back(sf::Vector2f(left, MAX_INT));   // Bottom left
+    borders.push_back(sf::Vector2f(right, -MAX_INT)); // Top right
+    borders.push_back(sf::Vector2f(right, MAX_INT));  // Bottom right
 }
 
 float Road::getLaneCenter(int laneIndex) {
@@ -20,54 +22,78 @@ float Road::getLaneCenter(int laneIndex) {
     return left + laneWidth / 2 + std::min(laneIndex, laneCount - 1) * laneWidth;
 }
 
-
 void Road::draw(sf::RenderWindow& window) {
-    // Line thickness
+    // Line thickness and margins
     float thickness = 5.0f;
+    float margin = 8.0f; // Margin between the road edge and the border line
 
     // Road surface
-    sf::RectangleShape roadSurface(sf::Vector2f(width, 20000)); // Height to cover the road length
-    roadSurface.setPosition(left, -10000); // Position it to cover the road area
-    roadSurface.setFillColor(sf::Color(220, 220, 220)); // Light gray color for the road
+    sf::RectangleShape roadSurface(sf::Vector2f(width, MAX_INT));
+    roadSurface.setPosition(left, -10000);
+    roadSurface.setFillColor(sf::Color(220, 220, 220));
     window.draw(roadSurface);
 
-    // Draw lane markings (dashed lines)
+    // Draw lane markings (dashed lines) using lerp
     for (int i = 1; i <= laneCount - 1; ++i) {
-        float x = Utils::lerp(left, right, i / static_cast<float>(laneCount));
-        for (float y = -10000; y < 10000; y += 40) { // 40 is the sum of line length and gap
-            sf::RectangleShape line(sf::Vector2f(thickness, 20)); // 20 is the line length
+        float x = Utils::lerp(left + margin, right - margin, i / static_cast<float>(laneCount));
+        for (float y = -10000; y < 10000; y += 40) {
+            sf::RectangleShape line(sf::Vector2f(thickness, 20));
             line.setPosition(x - thickness / 2, y);
             line.setFillColor(sf::Color::White);
             window.draw(line);
         }
     }
 
-    // Draw solid border lines
-    for (size_t i = 0; i < borders.size(); i += 2) {
-        sf::RectangleShape line;
-        line.setSize(sf::Vector2f(thickness, 20000)); // 20000 to cover the borders length
-        line.setPosition(borders[i].x - thickness / 2, borders[i].y);
-        line.setFillColor(sf::Color::White);
-        window.draw(line);
-    }
+    // Draw solid border lines with margin
+    sf::RectangleShape leftBorder(sf::Vector2f(thickness, 20000));
+    leftBorder.setPosition(left + margin, -10000);
+    leftBorder.setFillColor(sf::Color::White);
+    window.draw(leftBorder);
+
+    sf::RectangleShape rightBorder(sf::Vector2f(thickness, 20000));
+    rightBorder.setPosition(right - margin - thickness, -10000);
+    rightBorder.setFillColor(sf::Color::White);
+    window.draw(rightBorder);
 }
 
+
+
 // void Road::draw(sf::RenderWindow& window) {
-//     sf::VertexArray lines(sf::Lines);
+//     // Line thickness and margins
+//     float thickness = 5.0f;
+//     float margin = 10.0f; // Margin between the road edge and the border line
 
-//     // Draw lane markings
+//     // Adjusted road width considering margins
+//     float adjustedRoadWidth = width - 2 * margin;
+//     float laneWidth = adjustedRoadWidth / laneCount;
+
+//     // Road surface
+//     sf::RectangleShape roadSurface(sf::Vector2f(width, 20000));
+//     roadSurface.setPosition(left, -10000);
+//     roadSurface.setFillColor(sf::Color(220, 220, 220));
+//     window.draw(roadSurface);
+
+//     // Draw lane markings (dashed lines)
 //     for (int i = 1; i <= laneCount - 1; ++i) {
-//         float x = Utils::lerp(left, right, i / static_cast<float>(laneCount));
-//         lines.append(sf::Vertex(sf::Vector2f(x, -10000), sf::Color::White));
-//         lines.append(sf::Vertex(sf::Vector2f(x, 10000), sf::Color::White));
+//         float x = left + margin + laneWidth * i;
+//         for (float y = -10000; y < 10000; y += 40) {
+//             sf::RectangleShape line(sf::Vector2f(thickness, 20));
+//             line.setPosition(x - thickness / 2, y);
+//             line.setFillColor(sf::Color::White);
+//             window.draw(line);
+//         }
 //     }
 
-//     // Draw road borders
-//     for (size_t i = 0; i < borders.size(); i += 2) {
-//         lines.append(sf::Vertex(borders[i], sf::Color::White));
-//         lines.append(sf::Vertex(borders[i + 1], sf::Color::White));
-//     }
+//     // Draw solid border lines with margin
+//     sf::RectangleShape leftBorder(sf::Vector2f(thickness, 20000));
+//     leftBorder.setPosition(left + margin, -10000);
+//     leftBorder.setFillColor(sf::Color::White);
+//     window.draw(leftBorder);
 
-//     window.draw(lines);
+//     sf::RectangleShape rightBorder(sf::Vector2f(thickness, 20000));
+//     rightBorder.setPosition(right - margin - thickness, -10000);
+//     rightBorder.setFillColor(sf::Color::White);
+//     window.draw(rightBorder);
 // }
+
 

@@ -3,13 +3,19 @@
 #include "road.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1280, 1000), "Car Simulation");
+
+    int width = 1280;
+    int height = 1000;
+
+    sf::RenderWindow window(sf::VideoMode(width, height), "Car Simulation");
     window.setFramerateLimit(60);
-    sf::Color lightGray(192, 192, 192);
 
     // Create a Car object
-    Road road(1280/2, 500); // Adjust the position and width as needed
-    Car car(1280/2, 1000/2, 50, 100, road.getLeft(), road.getRight()); // Adjust the position and size as needed
+    Road road(width/2, height/3); // Adjust the position and width as needed
+    Car car(road.getLaneCenter(0), height/2, 50, 100, road.getLeft(), road.getRight()); // Adjust the position and size as needed
+
+     // Create a view (camera)
+    sf::View view(sf::FloatRect(0, 0, width, height));
 
     while (window.isOpen()) {
         
@@ -23,15 +29,20 @@ int main() {
                 window.close();
         }
 
-        window.clear(lightGray);
-
         // Update the car's state
         car.update();
 
-        // Draw the road
-        road.draw(window);
+        // Update the view to follow the car
+        float verticalOffset = height * 0.2; // Adjust this value as needed
+        view.setCenter(width / 2, car.getY() - verticalOffset);
 
-        // Draw the car
+        window.clear(sf::Color(192, 192, 192));
+
+        // Apply the view
+        window.setView(view);
+
+        // Draw the road and car
+        road.draw(window);
         car.draw(window);
 
         // Finally, display the rendered frame on screen

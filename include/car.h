@@ -12,6 +12,8 @@ public:
     void update();  
     void draw(sf::RenderWindow& window);
 
+    float getY() { return y; }
+
 private:
     float x, y, width, height;
     float speed, acceleration, maxSpeed, friction, angle;
