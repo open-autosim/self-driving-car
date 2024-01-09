@@ -7,7 +7,7 @@
 class Car {
 public:
     Car(float x, float y, float width, float height);
-    void update(const sf::RenderWindow& window);  // Change to sf::RenderWindow
+    void update();  
     void draw(sf::RenderWindow& window);
 
 private:

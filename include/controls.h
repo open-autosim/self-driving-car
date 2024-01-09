@@ -7,7 +7,7 @@ class Controls {
 public:
     Controls();
     
-    void update(const sf::RenderWindow& window);
+    void update();
 
     bool forward;
     bool left;
