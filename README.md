@@ -14,7 +14,7 @@ Before starting, ensure you have the following installed:
 git clone https://github.com/open-autosim/self-driving-car.git
 
 2. Navigate to the project directory:
-cd self-driving-car
+```cd self-driving-car```
 
 
 ## Building the Project
