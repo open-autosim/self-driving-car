@@ -11,7 +11,7 @@ Before starting, ensure you have the following installed:
 
 ## Installation
 1. Clone the repository:
-git clone https://github.com/open-autosim/self-driving-car.git
+```git clone https://github.com/open-autosim/self-driving-car.git```
 
 2. Navigate to the project directory:
 ```cd self-driving-car```
@@ -19,13 +19,13 @@ git clone https://github.com/open-autosim/self-driving-car.git
 
 ## Building the Project
 1. Compile the code using Make:
-make
+```make```
 
 This will generate the executable needed to run the simulation.
 
 ## Running the Simulation
 1. To start the simulation, run the generated executable:
-./[executable-name]
+```./[executable-name]```
 
 Replace `[executable-name]` with the actual name of the generated file.
 
