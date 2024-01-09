@@ -13,7 +13,6 @@ Before starting, ensure you have the following installed:
 1. Clone the repository:
 git clone https://github.com/open-autosim/self-driving-car.git
 
-css
 Copy code
 2. Navigate to the project directory:
 cd self-driving-car
