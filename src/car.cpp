@@ -83,14 +83,6 @@ void Car::move() {
         angle += 2 * M_PI;
     }
 
-    // // Update position
-    // x -= std::sin(angle) * speed;
-    // y -= std::cos(angle) * speed;
-
-    // // Update shape position and rotation
-    // shape.setPosition(x, y);
-    // shape.setRotation(-angle * 180 / M_PI); // Convert radians to degrees
-
     // Update position with provisional values
     float newX = x - std::sin(angle) * speed;
     float newY = y - std::cos(angle) * speed;
