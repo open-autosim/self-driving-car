@@ -13,27 +13,20 @@ Before starting, ensure you have the following installed:
 1. Clone the repository:
 git clone https://github.com/open-autosim/self-driving-car.git
 
-Copy code
 2. Navigate to the project directory:
 cd self-driving-car
 
-csharp
-Copy code
 
 ## Building the Project
 1. Compile the code using Make:
 make
 
-arduino
-Copy code
 This will generate the executable needed to run the simulation.
 
 ## Running the Simulation
 1. To start the simulation, run the generated executable:
 ./[executable-name]
 
-markdown
-Copy code
 Replace `[executable-name]` with the actual name of the generated file.
 
 ## Usage
