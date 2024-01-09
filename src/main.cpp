@@ -12,7 +12,7 @@ int main() {
 
     // Create a Car object
     Road road(width/2, height/3); // Adjust the position and width as needed
-    Car car(road.getLaneCenter(0), height/2, 50, 100, road.getLeft(), road.getRight()); // Adjust the position and size as needed
+    Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight()); // Adjust the position and size as needed
 
      // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));

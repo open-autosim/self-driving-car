@@ -68,11 +68,12 @@ void Car::move() {
     // Rotation logic with speed check
     if (speed != 0) {
         float flip = speed > 0 ? 1 : -1;
+        float turningRate = 0.01 * std::abs(speed);
         if (controls.left) {
-            angle += 0.03 * flip;
+            angle += turningRate * flip;
         }
         if (controls.right) {
-            angle -= 0.03 * flip;
+            angle -= turningRate * flip;
         }
     }
 
