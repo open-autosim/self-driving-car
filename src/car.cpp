@@ -2,8 +2,8 @@
 #include "car.h"
 #include <cmath>
 
-Car::Car(float x, float y, float width, float height)
-    : x(x), y(y), width(width), height(height), speed(0), acceleration(0.2), maxSpeed(3), friction(0.05), angle(0) {
+Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight)
+    : x(x), y(y), width(width), height(height), speed(0), acceleration(0.2), maxSpeed(3), friction(0.05), angle(0), roadLeft(roadLeft), roadRight(roadRight) {
     
     shape.setFillColor(sf::Color::Blue);
 
@@ -22,8 +22,10 @@ Car::Car(float x, float y, float width, float height)
 
 void Car::update() {
 
-    controls.update(); 
-    move();
+    if (!crashed) {
+        controls.update(); 
+        move();
+    }
 }
 
 #include <iostream>
@@ -80,13 +82,34 @@ void Car::move() {
         angle += 2 * M_PI;
     }
 
-    // Update position
-    x -= std::sin(angle) * speed;
-    y -= std::cos(angle) * speed;
+    // // Update position
+    // x -= std::sin(angle) * speed;
+    // y -= std::cos(angle) * speed;
+
+    // // Update shape position and rotation
+    // shape.setPosition(x, y);
+    // shape.setRotation(-angle * 180 / M_PI); // Convert radians to degrees
+
+    // Update position with provisional values
+    float newX = x - std::sin(angle) * speed;
+    float newY = y - std::cos(angle) * speed;
+
+    // Check if the car is within the road boundaries
+    if (newX - width / 2 > roadLeft && newX + width / 2 < roadRight) {
+        x = newX;
+    }
+    else
+    {
+        crashed = true;
+        shape.setFillColor(sf::Color(128, 128, 128));
+    }
+    
+    y = newY;
+    
 
     // Update shape position and rotation
     shape.setPosition(x, y);
-    shape.setRotation(-angle * 180 / M_PI); // Convert radians to degrees
+    shape.setRotation(-angle * 180 / M_PI); 
 
 }
 

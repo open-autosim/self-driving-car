@@ -1,13 +1,15 @@
 #include <SFML/Graphics.hpp>
 #include "car.h"
+#include "road.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Car Simulation");
+    sf::RenderWindow window(sf::VideoMode(1280, 1000), "Car Simulation");
     window.setFramerateLimit(60);
     sf::Color lightGray(192, 192, 192);
 
     // Create a Car object
-    Car car(1280/2, 720/2, 50, 100); // Adjust the position and size as needed
+    Road road(1280/2, 500); // Adjust the position and width as needed
+    Car car(1280/2, 1000/2, 50, 100, road.getLeft(), road.getRight()); // Adjust the position and size as needed
 
     while (window.isOpen()) {
         
@@ -25,6 +27,9 @@ int main() {
 
         // Update the car's state
         car.update();
+
+        // Draw the road
+        road.draw(window);
 
         // Draw the car
         car.draw(window);
