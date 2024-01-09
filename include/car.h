@@ -7,6 +7,8 @@
 class Car {
 public:
     Car(float x, float y, float width, float height);
+    sf::Sprite sprite;
+    sf::Texture texture; 
     void update();  
     void draw(sf::RenderWindow& window);
 

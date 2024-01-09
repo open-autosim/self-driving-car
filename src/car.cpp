@@ -1,8 +1,20 @@
+#include <iostream>
 #include "car.h"
 #include <cmath>
 
 Car::Car(float x, float y, float width, float height)
     : x(x), y(y), width(width), height(height), speed(0), acceleration(0.2), maxSpeed(3), friction(0.05), angle(0) {
+    
+    shape.setFillColor(sf::Color::Blue);
+
+    if (!texture.loadFromFile("include/car.png")) {
+        std::cerr << "Error: Unable to load car texture!" << std::endl;
+        // Handle the error (for example, by exiting the program)
+        exit(EXIT_FAILURE);
+    }
+
+    shape.setTexture(&texture); // Use the texture object directly
+
     shape.setSize(sf::Vector2f(width, height));
     shape.setOrigin(width / 2, height / 2);
     shape.setPosition(x, y);
