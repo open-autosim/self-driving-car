@@ -3,12 +3,18 @@
 #include "utils.h"
 #include <cmath>
 
-Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders)
+Car::~Car() {
+    delete sensor; // Delete the sensor in the destructor
+}
+
+Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, 
+std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed)
     : x(x), y(y), width(width), height(height), 
-    speed(0), acceleration(0.2), maxSpeed(3), 
+    speed(0), acceleration(0.2), maxSpeed(maxSpeed), 
     friction(0.05), angle(0), 
-    roadLeft(roadLeft), roadRight(roadRight), borders(borders),
-    sensor(*this) {
+    roadLeft(roadLeft), roadRight(roadRight), borders(borders), 
+    controls(controlsType),
+    sensor(controlsType == "DUMMY" ? nullptr : new Sensor(*this)) {
 
     // if (!texture.loadFromFile("include/car.png")) {
     //     std::cerr << "Error: Unable to load car texture!" << std::endl;
@@ -16,7 +22,7 @@ Car::Car(float x, float y, float width, float height, float roadLeft, float road
     //     exit(EXIT_FAILURE);
     // }
 
-    // shape.setTexture(&texture); // Use the texture object directly
+    // polygonShape.setTexture(&texture); // Use the texture object directly
 
     // shape.setSize(sf::Vector2f(width, height));
     // shape.setOrigin(width / 2, height / 2);
@@ -26,38 +32,32 @@ Car::Car(float x, float y, float width, float height, float roadLeft, float road
     polygonShape.setPointCount(4);
     polygonShape.setFillColor(sf::Color::Red);
     
-    
-
-    
-    
 }
 void Car::update() {
 
-    
-    controls.update(); 
-    move();
-    createPolygon();
-        // assessDamage();
-    
-    sensor.update(borders);
+    if (!damaged) {
+        controls.update(); 
+        move();
+        createPolygon();
+        assessDamage();
+    }
+
+    if (sensor != nullptr) {
+        sensor->update(borders);
+    }
 }
 
-// void Car::assessDamage() {
+void Car::assessDamage() {
     
-//     for (int i = 0; i < borders.size() - 1; i++) { // Ensure we don't go out of bounds
-//         if (Utils::polysIntersect(polygon, {borders[i], borders[i + 1]})) {
-//             //print borders all border
-//             std::cout << "Borders: " << std::endl;
-//             for (auto& point : borders) {
-//                 std::cout << point.x << ", " << point.y << std::endl;
-//             }
-//             std::cout << "Collision detected!" << std::endl;
-//             crashed = true;   
-//             return; 
-//         }
-//     }
-//     crashed = false;
-// }
+    for (int i = 0; i < borders.size(); i++) { // Ensure we don't go out of bounds
+        if (Utils::polysIntersect(polygon, {borders[i].first, borders[i].second})) {
+            std::cout << "Collision detected!" << std::endl;
+            damaged = true;   
+            return; 
+        }
+    }
+    damaged = false;
+}
 
 void Car::createPolygon() {
 
@@ -74,58 +74,33 @@ void Car::createPolygon() {
         polygonShape.setPoint(i, polygon[i]);
 
     }
-
-    std::cout << "Polygon: " << std::endl;
-    for (auto& point : polygon) {
-        std::cout << "Point: (" << point.x << ", " << point.y << ")" << std::endl;
-    }
-
-    sf::Vector2f bottomLeft = polygon[0];
-    sf::Vector2f bottomRight = polygon[1];
-    sf::Vector2f topLeft = polygon[3];
-    sf::Vector2f topRight = polygon[2];
-
-    std::cout << "Bottom Left: (" << bottomLeft.x << ", " << bottomLeft.y << ")" << std::endl;
-    std::cout << "Bottom Right: (" << bottomRight.x << ", " << bottomRight.y << ")" << std::endl;
-    std::cout << "Top Left: (" << topLeft.x << ", " << topLeft.y << ")" << std::endl;
-    std::cout << "Top Right: (" << topRight.x << ", " << topRight.y << ")" << std::endl;
 }
 
 
 void Car::move() {
-    // Forward movement
+    
     if (controls.forward) {
         speed += acceleration;
     }
-
-    // Backward movement
     if (controls.reverse) {
         speed -= acceleration;
     }
-
-    // Ensure the car doesn't exceed the maximum speed or go below minimum reverse speed
     if (speed > maxSpeed) {
         speed = maxSpeed;
     }
     if (speed < -maxSpeed / 2) {
         speed = -maxSpeed / 2;
     }
-
-    // Apply friction to slow down the car
     if (!controls.forward && !controls.reverse) {
         if (speed > 0) {
             speed -= friction;
         } else if (speed < 0) {
             speed += friction;
         }
-
-        // Stop the car if the speed is below the friction threshold
         if (std::abs(speed) < friction) {
             speed = 0;
         }
     }
-
-    // Rotation logic with speed check
     if (speed != 0) {
         float flip = speed > 0 ? 1 : -1;
         float turningRate = 0.01 * std::abs(speed);
@@ -137,29 +112,22 @@ void Car::move() {
         }
     }
 
-    // Normalize the angle to range [0, 2π]
-    angle = fmod(angle, 2 * M_PI);
-    if (angle < 0) {
-        angle += 2 * M_PI;
-    }
-
-    // Update position with provisional values
     x -= std::sin(angle) * speed;
     y -= std::cos(angle) * speed;
-    
-
-    // Update shape position and rotation
-    // shape.setPosition(x, y);
-    // shape.setRotation(-angle * 180 / M_PI); 
-
-    // polygonShape.setPosition(x, y);
-    // polygonShape.setRotation(-angle * 180 / M_PI);
 
 }
 
 void Car::draw(sf::RenderWindow& window) {
 
-    window.draw(polygonShape);
 
-    sensor.draw(window);
+    if (damaged) {
+        polygonShape.setFillColor(sf::Color(190,190,190));
+    } else {
+        polygonShape.setFillColor(sf::Color::Blue);
+    }
+
+    window.draw(polygonShape);
+    if (sensor != nullptr) {
+        sensor->draw(window);
+    }
 }
