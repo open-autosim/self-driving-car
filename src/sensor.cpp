@@ -6,21 +6,31 @@
 
 Sensor::Sensor(Car& car) : m_car(car), rayCount(5), rayLength(150), raySpread(M_PI / 2) {}
 
-void Sensor::update(const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders) {
+void Sensor::update(const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic) {
     castRays();
     readings.clear();
 
     for (auto& ray : rays) {
-        readings.push_back(getReading(ray, roadBorders));
+        readings.push_back(getReading(ray, roadBorders, traffic));
     }
 }
 
-sf::Vector2f* Sensor::getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders) {
+sf::Vector2f* Sensor::getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic) {
     std::vector<sf::Vector2f> touches;
     for (const auto& border : roadBorders) {
         std::optional<sf::Vector2f> touch = Utils::getIntersection(ray.first, ray.second, border.first, border.second);
         if (touch.has_value()) {
             touches.push_back(touch.value());
+        }
+    }
+
+    for (int i = 0; i < traffic.size(); i++) {
+        std::vector<sf::Vector2f> polygon = traffic[i].polygon;
+        for (int j = 0; j < polygon.size(); j++) {
+            std::optional<sf::Vector2f> touch = Utils::getIntersection(ray.first, ray.second, polygon[j], polygon[(j + 1) % polygon.size()]);
+            if (touch.has_value()) {
+                touches.push_back(touch.value());
+            }
         }
     }
 

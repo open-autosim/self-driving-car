@@ -13,7 +13,7 @@ int main() {
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
     Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "KEYS"); // Adjust the position and size as needed
-    std::vector<Car> traffic = { Car(road.getLaneCenter(1), height/2-400, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 3) };
+    std::vector<Car> traffic = { Car(road.getLaneCenter(1), height/2-400, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2) };
 
      // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
@@ -31,11 +31,11 @@ int main() {
         }
 
         for (auto& car : traffic) {
-            car.update();
+            car.update(std::vector<Car> {});
         }
 
         // Update the car's state
-        car.update();
+        car.update(traffic);
 
         // Update the view to follow the car
         float verticalOffset = height * 0.2; // Adjust this value as needed
@@ -49,9 +49,9 @@ int main() {
         // Draw the road and car
         road.draw(window);
         for (auto& car : traffic) {
-            car.draw(window);
+            car.draw(window, "red");
         }
-        car.draw(window);
+        car.draw(window, "blue");
 
         // Finally, display the rendered frame on screen
         window.display();

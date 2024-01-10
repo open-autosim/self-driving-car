@@ -33,24 +33,31 @@ std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controls
     polygonShape.setFillColor(sf::Color::Red);
     
 }
-void Car::update() {
+void Car::update(std::vector<Car> traffic) {
 
     if (!damaged) {
         controls.update(); 
         move();
         createPolygon();
-        assessDamage();
+        assessDamage(traffic);
     }
 
     if (sensor != nullptr) {
-        sensor->update(borders);
+        sensor->update(borders, traffic);
     }
 }
 
-void Car::assessDamage() {
+void Car::assessDamage(std::vector<Car> traffic) {
     
     for (int i = 0; i < borders.size(); i++) { // Ensure we don't go out of bounds
         if (Utils::polysIntersect(polygon, {borders[i].first, borders[i].second})) {
+            std::cout << "Collision detected!" << std::endl;
+            damaged = true;   
+            return; 
+        }
+    }
+    for (int i = 0; i < traffic.size(); i++) { // Ensure we don't hit other cars
+        if (Utils::polysIntersect(polygon, traffic[i].polygon)) {
             std::cout << "Collision detected!" << std::endl;
             damaged = true;   
             return; 
@@ -117,13 +124,17 @@ void Car::move() {
 
 }
 
-void Car::draw(sf::RenderWindow& window) {
+void Car::draw(sf::RenderWindow& window, std::string color) {
 
 
     if (damaged) {
         polygonShape.setFillColor(sf::Color(190,190,190));
     } else {
-        polygonShape.setFillColor(sf::Color::Blue);
+        if (color == "red") {
+            polygonShape.setFillColor(sf::Color::Red);
+        } else if (color == "blue") {
+            polygonShape.setFillColor(sf::Color::Blue);
+        }
     }
 
     window.draw(polygonShape);

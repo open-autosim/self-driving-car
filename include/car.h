@@ -9,18 +9,19 @@
 
 class Car {
 public:
-    Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed = 3);
+    Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed = 4);
     ~Car(); 
 
     Sensor *sensor;
     
     sf::Sprite sprite;
     sf::Texture texture; 
+    std::vector<sf::Vector2f> polygon;
     
-    void update();  
-    void draw(sf::RenderWindow& window);
+    void update(std::vector<Car> traffic);  
+    void draw(sf::RenderWindow& window, std::string color);
     void createPolygon();
-    void assessDamage();
+    void assessDamage(std::vector<Car> traffic);
 
     float getX() const { return x; }
     float getY() const { return y; }
@@ -32,7 +33,7 @@ private:
     float roadLeft, roadRight;
     
     std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders;
-    std::vector<sf::Vector2f> polygon;
+    
 
     Controls controls;
 
