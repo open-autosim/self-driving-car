@@ -4,14 +4,14 @@
 
 int main() {
 
-    int width = 1280;
-    int height = 1000;
+    int width = 600;
+    int height = 800;
 
-    sf::RenderWindow window(sf::VideoMode(width, height), "Car Simulation");
+    sf::RenderWindow window(sf::VideoMode(width, height), "Self Driving Car");
     window.setFramerateLimit(60);
 
     // Create a Car object
-    Road road(width/2, height/3); // Adjust the position and width as needed
+    Road road(width/2, 300, 3); // Adjust the position and width as needed
     Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders()); // Adjust the position and size as needed
 
      // Create a view (camera)

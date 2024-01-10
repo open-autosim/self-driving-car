@@ -3,32 +3,40 @@
 #include "utils.h"
 #include <cmath>
 
-Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<sf::Vector2f> borders)
+Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders)
     : x(x), y(y), width(width), height(height), 
     speed(0), acceleration(0.2), maxSpeed(3), 
     friction(0.05), angle(0), 
     roadLeft(roadLeft), roadRight(roadRight), borders(borders),
     sensor(*this) {
 
-    if (!texture.loadFromFile("include/car.png")) {
-        std::cerr << "Error: Unable to load car texture!" << std::endl;
-        // Handle the error (for example, by exiting the program)
-        exit(EXIT_FAILURE);
-    }
+    // if (!texture.loadFromFile("include/car.png")) {
+    //     std::cerr << "Error: Unable to load car texture!" << std::endl;
+    //     // Handle the error (for example, by exiting the program)
+    //     exit(EXIT_FAILURE);
+    // }
 
-    shape.setTexture(&texture); // Use the texture object directly
+    // shape.setTexture(&texture); // Use the texture object directly
 
-    shape.setSize(sf::Vector2f(width, height));
-    shape.setOrigin(width / 2, height / 2);
-    shape.setPosition(x, y);
+    // shape.setSize(sf::Vector2f(width, height));
+    // shape.setOrigin(width / 2, height / 2);
+    // shape.setPosition(x, y);
+
+    // Create the polygon shape
+    polygonShape.setPointCount(4);
+    polygonShape.setFillColor(sf::Color::Red);
+    
+    
+
+    
+    
 }
-
 void Car::update() {
 
     
     controls.update(); 
     move();
-        // createPolygon();
+    createPolygon();
         // assessDamage();
     
     sensor.update(borders);
@@ -51,28 +59,38 @@ void Car::update() {
 //     crashed = false;
 // }
 
-// void Car::createPolygon() {
-//     polygon.clear();
-//     polygon.push_back(sf::Vector2f(x - width / 2, y - height / 2));
-//     polygon.push_back(sf::Vector2f(x + width / 2, y - height / 2));
-//     polygon.push_back(sf::Vector2f(x + width / 2, y + height / 2));
-//     polygon.push_back(sf::Vector2f(x - width / 2, y + height / 2));
+void Car::createPolygon() {
 
-//     float cosA = std::cos(angle);
-//     float sinA = std::sin(angle);
+    polygon.clear(); 
+    float rad = std::hypot(width, height) / 2;
+    float alpha = std::atan2(width, height);
 
-//     for (auto& point : polygon) {
-//         float dx = point.x - x;
-//         float dy = point.y - y;
-//         point.x = x + dx * cosA - dy * sinA;
-//         point.y = y + dx * sinA + dy * cosA;
-//     }
+    polygon.push_back(sf::Vector2f(x - std::sin(angle - alpha) * rad, y - std::cos(angle - alpha) * rad));
+    polygon.push_back(sf::Vector2f(x - std::sin(angle + alpha) * rad, y - std::cos(angle + alpha) * rad));
+    polygon.push_back(sf::Vector2f(x - std::sin(M_PI + angle - alpha) * rad, y - std::cos(M_PI + angle - alpha) * rad));
+    polygon.push_back(sf::Vector2f(x - std::sin(M_PI + angle + alpha) * rad, y - std::cos(M_PI + angle + alpha) * rad));
 
-//     std::cout << "Polygon: " << std::endl;
-//     for (auto& point : polygon) {
-//         std::cout << point.x << ", " << point.y << std::endl;
-//     }
-// }
+    for (int i = 0; i < polygon.size(); i++) {
+        polygonShape.setPoint(i, polygon[i]);
+
+    }
+
+    std::cout << "Polygon: " << std::endl;
+    for (auto& point : polygon) {
+        std::cout << "Point: (" << point.x << ", " << point.y << ")" << std::endl;
+    }
+
+    sf::Vector2f bottomLeft = polygon[0];
+    sf::Vector2f bottomRight = polygon[1];
+    sf::Vector2f topLeft = polygon[3];
+    sf::Vector2f topRight = polygon[2];
+
+    std::cout << "Bottom Left: (" << bottomLeft.x << ", " << bottomLeft.y << ")" << std::endl;
+    std::cout << "Bottom Right: (" << bottomRight.x << ", " << bottomRight.y << ")" << std::endl;
+    std::cout << "Top Left: (" << topLeft.x << ", " << topLeft.y << ")" << std::endl;
+    std::cout << "Top Right: (" << topRight.x << ", " << topRight.y << ")" << std::endl;
+}
+
 
 void Car::move() {
     // Forward movement
@@ -131,13 +149,17 @@ void Car::move() {
     
 
     // Update shape position and rotation
-    shape.setPosition(x, y);
-    shape.setRotation(-angle * 180 / M_PI); 
+    // shape.setPosition(x, y);
+    // shape.setRotation(-angle * 180 / M_PI); 
+
+    // polygonShape.setPosition(x, y);
+    // polygonShape.setRotation(-angle * 180 / M_PI);
 
 }
 
 void Car::draw(sf::RenderWindow& window) {
 
-    window.draw(shape);
+    window.draw(polygonShape);
+
     sensor.draw(window);
 }
