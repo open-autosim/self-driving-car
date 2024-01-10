@@ -1,8 +1,19 @@
 #include <SFML/Graphics.hpp>
 #include "car.h"
 #include "road.h"
+#include "server.h"
+#include <iostream>
 
 int main() {
+
+    Server server(8080);
+    server.initServer();
+    server.waitForConnection();
+
+    
+    char* data = server.receiveData();
+    
+
 
     int width = 600;
     int height = 800;
@@ -57,5 +68,6 @@ int main() {
         window.display();
     }
 
+    server.closeServer();
     return 0;
 }
