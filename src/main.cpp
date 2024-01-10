@@ -24,7 +24,17 @@ int main() {
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
     Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "KEYS"); // Adjust the position and size as needed
-    std::vector<Car> traffic = { Car(road.getLaneCenter(1), height/2-400, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2) };
+    std::vector<Car> traffic = { 
+        Car(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(2), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(0), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(1), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
+        Car(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2)
+    };
+         
+        
 
      // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
