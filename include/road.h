@@ -12,6 +12,7 @@ public:
     void draw(sf::RenderWindow& window);
     float getLeft() { return left; }
     float getRight() { return right; }
+    std::vector<sf::Vector2f> getBorders() { return borders; }
 
 private:
     float x, width;

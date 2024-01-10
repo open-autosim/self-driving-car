@@ -1,11 +1,14 @@
 #include <iostream>
 #include "car.h"
+#include "utils.h"
 #include <cmath>
 
-Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight)
-    : x(x), y(y), width(width), height(height), speed(0), acceleration(0.2), maxSpeed(3), friction(0.05), angle(0), roadLeft(roadLeft), roadRight(roadRight) {
-    
-    shape.setFillColor(sf::Color::Blue);
+Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<sf::Vector2f> borders)
+    : x(x), y(y), width(width), height(height), 
+    speed(0), acceleration(0.2), maxSpeed(3), 
+    friction(0.05), angle(0), 
+    roadLeft(roadLeft), roadRight(roadRight), borders(borders),
+    sensor(*this) {
 
     if (!texture.loadFromFile("include/car.png")) {
         std::cerr << "Error: Unable to load car texture!" << std::endl;
@@ -22,15 +25,54 @@ Car::Car(float x, float y, float width, float height, float roadLeft, float road
 
 void Car::update() {
 
-    if (!crashed) {
-        controls.update(); 
-        move();
-    }
+    
+    controls.update(); 
+    move();
+        // createPolygon();
+        // assessDamage();
+    
+    sensor.update(borders);
 }
 
-#include <iostream>
-#include <cmath>
+// void Car::assessDamage() {
+    
+//     for (int i = 0; i < borders.size() - 1; i++) { // Ensure we don't go out of bounds
+//         if (Utils::polysIntersect(polygon, {borders[i], borders[i + 1]})) {
+//             //print borders all border
+//             std::cout << "Borders: " << std::endl;
+//             for (auto& point : borders) {
+//                 std::cout << point.x << ", " << point.y << std::endl;
+//             }
+//             std::cout << "Collision detected!" << std::endl;
+//             crashed = true;   
+//             return; 
+//         }
+//     }
+//     crashed = false;
+// }
 
+// void Car::createPolygon() {
+//     polygon.clear();
+//     polygon.push_back(sf::Vector2f(x - width / 2, y - height / 2));
+//     polygon.push_back(sf::Vector2f(x + width / 2, y - height / 2));
+//     polygon.push_back(sf::Vector2f(x + width / 2, y + height / 2));
+//     polygon.push_back(sf::Vector2f(x - width / 2, y + height / 2));
+
+//     float cosA = std::cos(angle);
+//     float sinA = std::sin(angle);
+
+//     for (auto& point : polygon) {
+//         float dx = point.x - x;
+//         float dy = point.y - y;
+//         point.x = x + dx * cosA - dy * sinA;
+//         point.y = y + dx * sinA + dy * cosA;
+//     }
+
+//     std::cout << "Polygon: " << std::endl;
+//     for (auto& point : polygon) {
+//         std::cout << point.x << ", " << point.y << std::endl;
+//     }
+// }
 
 void Car::move() {
     // Forward movement
@@ -84,20 +126,8 @@ void Car::move() {
     }
 
     // Update position with provisional values
-    float newX = x - std::sin(angle) * speed;
-    float newY = y - std::cos(angle) * speed;
-
-    // Check if the car is within the road boundaries
-    if (newX - width / 2 > roadLeft && newX + width / 2 < roadRight) {
-        x = newX;
-    }
-    else
-    {
-        crashed = true;
-        shape.setFillColor(sf::Color(128, 128, 128));
-    }
-    
-    y = newY;
+    x -= std::sin(angle) * speed;
+    y -= std::cos(angle) * speed;
     
 
     // Update shape position and rotation
@@ -107,5 +137,7 @@ void Car::move() {
 }
 
 void Car::draw(sf::RenderWindow& window) {
+
     window.draw(shape);
+    sensor.draw(window);
 }
