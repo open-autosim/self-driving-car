@@ -9,7 +9,6 @@ int main() {
     Server server(8080);
     server.initServer();
     server.waitForConnection();
-    server.receiveData();
 
 
     int width = 600;
