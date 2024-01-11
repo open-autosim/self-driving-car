@@ -182,7 +182,7 @@ void Car::sendData(Server& server) {
 
 void Car::receiveData(Server& server) {
 
-    char* receivedData = server.receiveData2();
+    char* receivedData = server.receiveData();
 
     // Handle the received data as needed
     // For example, you can print it

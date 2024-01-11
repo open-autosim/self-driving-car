@@ -1,8 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <string>
-#include <zmq.hpp>
+#include <netinet/in.h>
 
 class Server {
 public:
@@ -10,15 +9,15 @@ public:
     ~Server();
 
     void initServer();
-    void sendData(const std::string& data);
-    std::string receiveData();
+    void waitForConnection();
+    void sendData(const char* data);
+    char* receiveData();
     void closeServer();
-    char* receiveData2();
 
 private:
     int port;
-    zmq::context_t context;
-    zmq::socket_t socket;
+    int server_fd;
+    int new_socket;
 };
 
 #endif // SERVER_H
