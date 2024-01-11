@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -Iinclude -I/opt/homebrew/include -std=c++17
-LDFLAGS = -L/opt/homebrew/Cellar/sfml/2.6.1/lib -lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS = -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # List of source files
 SOURCES = src/main.cpp src/car.cpp src/controls.cpp src/road.cpp src/utils.cpp src/sensor.cpp src/server.cpp

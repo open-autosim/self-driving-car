@@ -2,6 +2,7 @@ import socket
 import struct
 import json
 
+
 def send_data(sock, message):
     # Encode the message to bytes, prepare header
     encoded_message = message.encode()
@@ -26,7 +27,7 @@ def receive_data(sock):
         if not packet:
             return None
         data += packet
-
+s
     return data.decode()
 
 # Create a socket object
@@ -63,3 +64,4 @@ while True:
 
 # Close the connection
 client_socket.close()
+

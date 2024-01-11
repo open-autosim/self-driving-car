@@ -11,6 +11,7 @@ int main() {
     server.waitForConnection();
 
 
+
     int width = 600;
     int height = 800;
 
@@ -29,8 +30,6 @@ int main() {
         Car(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
         Car(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2)
     };
-        
-
 
     // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
