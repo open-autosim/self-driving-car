@@ -7,11 +7,11 @@
 int main() {
 
     Server server(8080);
-    server.initServer();
-    server.waitForConnection();
+    // server.initServer();
+    // server.waitForConnection();
 
     
-    char* data = server.receiveData();
+    // char* data = server.receiveData();
     
 
 

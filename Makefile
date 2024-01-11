@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -Iinclude -I/opt/homebrew/Cellar/sfml/2.6.1/include -I/opt/homebrew/Cellar/nlohmann-json/3.11.3/include -std=c++17
+CXXFLAGS = -Iinclude -I/opt/homebrew/include -std=c++17
 LDFLAGS = -L/opt/homebrew/Cellar/sfml/2.6.1/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # List of source files

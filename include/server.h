@@ -1,6 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <string>
+#include <zmq.hpp>
 
 class Server {
 public:
@@ -8,14 +10,15 @@ public:
     ~Server();
 
     void initServer();
-    void waitForConnection();
-    void sendData(const char* data);
-    char* receiveData();
+    void sendData(const std::string& data);
+    std::string receiveData();
     void closeServer();
+    char* receiveData2();
 
 private:
-    int server_fd, new_socket;
     int port;
+    zmq::context_t context;
+    zmq::socket_t socket;
 };
 
 #endif // SERVER_H
