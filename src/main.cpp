@@ -52,11 +52,11 @@ int main() {
         }
 
         for (auto& car : traffic) {
-            car.update(std::vector<Car> {});
+            car.update(std::vector<Car> {}, server);
         }
 
         // Update the car's state
-        car.update(traffic);
+        car.update(traffic, server);
 
         // Update the view to follow the car
         float verticalOffset = height * 0.2; // Adjust this value as needed

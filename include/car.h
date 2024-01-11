@@ -6,6 +6,8 @@
 #include "sensor.h"
 #include <string>
 #include <optional>
+#include "server.h"
+#include <nlohmann/json.hpp>
 
 class Car {
 public:
@@ -18,10 +20,12 @@ public:
     sf::Texture texture; 
     std::vector<sf::Vector2f> polygon;
     
-    void update(std::vector<Car> traffic);  
+    void update(std::vector<Car> traffic, Server& server);  
     void draw(sf::RenderWindow& window, std::string color);
     void createPolygon();
     void assessDamage(std::vector<Car> traffic);
+    void sendData(Server& server);
+    void receiveData(Server& server);
 
     float getX() const { return x; }
     float getY() const { return y; }
@@ -36,6 +40,7 @@ private:
     
 
     Controls controls;
+    std::string controlsType;
 
     bool damaged;
 

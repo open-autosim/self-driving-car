@@ -66,14 +66,20 @@ void Server::waitForConnection() {
 }
 
 void Server::sendData(const char* data) {
-    send(new_socket, data, strlen(data), 0);
+    size_t dataLength = strlen(data);
+    send(new_socket, &dataLength, sizeof(dataLength), 0); // Send the size of data first
+    send(new_socket, data, dataLength, 0); // Then send the data
     std::cout << "Data sent: " << data << std::endl;
 }
 
 char* Server::receiveData() {
-    int valread;
-    char *buffer = new char[1024];
-    valread = read(new_socket, buffer, 1024);
+    size_t bufferSize;
+    read(new_socket, &bufferSize, sizeof(bufferSize)); // Read the size of data first
+
+    char *buffer = new char[bufferSize + 1]; // Allocate buffer based on the size received
+    read(new_socket, buffer, bufferSize);
+    buffer[bufferSize] = '\0'; // Null-terminate the string
+
     std::cout << "Data received: " << buffer << std::endl;
     return buffer;
 }

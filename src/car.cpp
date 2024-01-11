@@ -13,7 +13,7 @@ std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controls
     speed(0), acceleration(0.2), maxSpeed(maxSpeed), 
     friction(0.05), angle(0), 
     roadLeft(roadLeft), roadRight(roadRight), borders(borders), 
-    controls(controlsType),
+    controls(controlsType), controlsType(controlsType),
     sensor(controlsType == "DUMMY" ? nullptr : new Sensor(*this)) {
 
     // if (!texture.loadFromFile("include/car.png")) {
@@ -33,8 +33,8 @@ std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controls
     polygonShape.setFillColor(sf::Color::Red);
     
 }
-void Car::update(std::vector<Car> traffic) {
-
+void Car::update(std::vector<Car> traffic, Server& server) {
+    
     if (!damaged) {
         controls.update(); 
         move();
@@ -44,6 +44,12 @@ void Car::update(std::vector<Car> traffic) {
 
     if (sensor != nullptr) {
         sensor->update(borders, traffic);
+    }
+
+    // function to send data to server
+    if (controlsType == "KEYS") {
+        // sendData(server);
+        // receiveData(server);
     }
 }
 
@@ -141,4 +147,48 @@ void Car::draw(sf::RenderWindow& window, std::string color) {
     if (sensor != nullptr) {
         sensor->draw(window);
     }
+}
+
+void Car::sendData(Server& server) {
+
+    nlohmann::json data;
+
+    // Add car's basic information
+    data["position"] = {x, y};
+    data["speed"] = speed;
+    data["angle"] = angle;
+    data["damaged"] = damaged;
+
+    // Add sensor data if available
+    if (sensor != nullptr) {
+        std::vector<nlohmann::json> sensorReadings;
+        for (const auto& reading : sensor->readings) {
+            if (reading) {
+                sensorReadings.push_back({{"x", reading->x}, {"y", reading->y}});
+            } else {
+                sensorReadings.push_back(nullptr);
+            }
+        }
+        data["sensor_readings"] = sensorReadings;
+    }
+
+    // Convert JSON object to string
+    std::string dataStr = data.dump();
+
+    // Send serialized data through the server
+    server.sendData(dataStr.c_str());
+
+}
+
+void Car::receiveData(Server& server) {
+
+    char* receivedData = server.receiveData();
+
+    // Handle the received data as needed
+    // For example, you can print it
+    std::cout << "Received from server: " << receivedData << std::endl;
+
+    // Don't forget to deallocate the receivedData memory when done
+    delete[] receivedData;
+
 }
