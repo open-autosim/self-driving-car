@@ -1,5 +1,4 @@
 import socket
-import json
 
 class CarClient:
     def __init__(self, host='127.0.0.1', port=8080):
@@ -27,6 +26,3 @@ client.send_data("Hello from Python!")
 response = client.receive_data()
 print("Received from server:", response)
 client.close_connection()
-
-
-
