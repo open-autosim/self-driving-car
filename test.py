@@ -27,7 +27,7 @@ def receive_data(sock):
         if not packet:
             return None
         data += packet
-s
+
     return data.decode()
 
 # Create a socket object
