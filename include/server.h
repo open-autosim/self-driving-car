@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <netinet/in.h>
+#include <string>
 
 class Server {
 public:
@@ -10,14 +10,13 @@ public:
 
     void initServer();
     void waitForConnection();
-    void sendData(const char* data);
+    void sendData(const std::string& data);
     char* receiveData();
     void closeServer();
 
 private:
+    int server_fd, new_socket;
     int port;
-    int server_fd;
-    int new_socket;
 };
 
 #endif // SERVER_H

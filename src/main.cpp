@@ -7,12 +7,9 @@
 int main() {
 
     Server server(8080);
-    // server.initServer();
-    // server.waitForConnection();
-
-    
-    // char* data = server.receiveData();
-    
+    server.initServer();
+    server.waitForConnection();
+    server.receiveData();
 
 
     int width = 600;
@@ -23,7 +20,7 @@ int main() {
 
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
-    Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "KEYS"); // Adjust the position and size as needed
+    Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); // Adjust the position and size as needed
     std::vector<Car> traffic = { 
         Car(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
         Car(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
@@ -33,10 +30,10 @@ int main() {
         Car(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
         Car(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2)
     };
-         
         
 
-     // Create a view (camera)
+
+    // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
 
     while (window.isOpen()) {
@@ -80,4 +77,7 @@ int main() {
 
     server.closeServer();
     return 0;
+    
+    
+
 }
