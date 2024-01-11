@@ -2,6 +2,7 @@
 #include "car.h"
 #include "utils.h"
 #include <cmath>
+#include <nlohmann/json.hpp>
 
 Car::~Car() {
     delete sensor; // Delete the sensor in the destructor
