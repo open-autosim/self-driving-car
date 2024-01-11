@@ -47,9 +47,9 @@ void Car::update(std::vector<Car> traffic, Server& server) {
     }
 
     // function to send data to server
-    if (controlsType == "KEYS") {
-        // sendData(server);
-        // receiveData(server);
+    if (controlsType == "AI") {
+        sendData(server);
+        receiveData(server);
     }
 }
 
@@ -159,6 +159,13 @@ void Car::sendData(Server& server) {
     data["angle"] = angle;
     data["damaged"] = damaged;
 
+    // Add car's polygon points
+    std::vector<nlohmann::json> polygonPoints;
+    for (const auto& point : polygon) {
+        polygonPoints.push_back({{"x", point.x}, {"y", point.y}});
+    }
+    data["polygon_points"] = polygonPoints;
+
     // Add sensor data if available
     if (sensor != nullptr) {
         std::vector<nlohmann::json> sensorReadings;
@@ -182,13 +189,18 @@ void Car::sendData(Server& server) {
 
 void Car::receiveData(Server& server) {
 
-    char* receivedData = server.receiveData();
+    // Receive data from the server
+    std::string dataStr = server.receiveData();
 
-    // Handle the received data as needed
-    // For example, you can print it
-    std::cout << "Received from server: " << receivedData << std::endl;
+    // Parse the data into a JSON object
+    nlohmann::json data = nlohmann::json::parse(dataStr);
+    
 
-    // Don't forget to deallocate the receivedData memory when done
-    delete[] receivedData;
+    // Update the car's controls
+    controls.forward = data["forward"];
+    controls.reverse = data["reverse"];
+    controls.left = data["left"];
+    controls.right = data["right"];
 
+    
 }

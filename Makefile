@@ -9,7 +9,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 # Name of the final executable
 EXECUTABLE = bin/main
 
-all: install	build
+all: build
 
 build:	$(EXECUTABLE)
 
