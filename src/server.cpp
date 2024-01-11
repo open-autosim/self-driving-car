@@ -1,3 +1,4 @@
+
 #include "server.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -89,3 +90,57 @@ void Server::closeServer() {
     close(server_fd);
     std::cout << "Server closed" << std::endl;
 }
+
+
+
+
+// #include "server.h"
+// #include <sys/socket.h>
+// #include <netinet/in.h>
+// #include <unistd.h>
+// #include <cstring>
+// #include <iostream>
+// #include <zmq.hpp>
+
+// Constructor (initialize ZeroMQ context)
+// Server::Server(int port) : port(port), server_fd(0), context(1) {}
+
+// Server::~Server() {
+//     closeServer();
+// }
+
+// void Server::initServer() {
+//     // Existing socket setup code...
+
+//     // Create ZeroMQ socket
+//     socket = zmq::socket_t(context, ZMQ_REP);
+//     socket.bind("tcp://*:5555"); // Replace with desired port if needed
+
+//     std::cout << "Server initialized on port " << port << std::endl;
+// }
+
+// // (No need to wait for connections in ZeroMQ REP pattern)
+
+// void Server::sendData(const std::string& data) {
+//     zmq::message_t message(data.size());
+//     memcpy(message.data(), data.c_str(), data.size());
+//     socket.send(message);
+// }
+
+// std::string Server::receiveData() {
+//     zmq::message_t message;
+//     socket.recv(&message);
+//     return std::string(static_cast<char*>(message.data()), message.size());
+// }
+
+// void Server::closeServer() {
+//     socket.close();
+//     close(server_fd);
+//     std::cout << "Server closed" << std::endl;
+// }
+
+
+
+
+
+

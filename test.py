@@ -26,16 +26,6 @@ client = CarClient()
 client.send_data("Hello from Python!")
 response = client.receive_data()
 print("Received from server:", response)
-
-
-
-
-
-# Example usage
-
-client.send_data(json_data)
-response = client.receive_data()
-print("Received from server:", response)
 client.close_connection()
 
 
