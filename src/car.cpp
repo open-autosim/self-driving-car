@@ -204,3 +204,17 @@ void Car::receiveData(Server& server) {
 
     
 }
+
+void Car::resetGameState(float x, float y, float width, float height, float roadLeft, float roadRight)
+{
+    this->x = x;
+    this->y = y;
+    this->width = width;
+    this->height = height;
+    this->roadLeft = roadLeft;
+    this->roadRight = roadRight;
+    this->speed = 0;
+    this->angle = 0;
+    this->damaged = false;
+    this->createPolygon();
+}

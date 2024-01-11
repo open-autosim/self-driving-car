@@ -30,6 +30,10 @@ public:
     float getX() const { return x; }
     float getY() const { return y; }
     float getAngle() const { return angle; }
+    // get is damaged
+    bool isDamaged() const { return damaged; }
+
+    void resetGameState(float x, float y, float width, float height, float roadLeft, float roadRight);
 
 private:
     float x, y, width, height;

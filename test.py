@@ -1,6 +1,11 @@
 import socket
 import struct
 import json
+import network as nn
+import torch
+
+
+network = nn.NeuralNetwork([5, 6, 4])
 
 
 def send_data(sock, message):
@@ -36,14 +41,35 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Connect to the server
 client_socket.connect(('127.0.0.1', 8080))
 
-# Send and receive messages in a loop
 while True:
+
+    # Receive a response from the server and process it
+    response = receive_data(client_socket)
+    if response:
+        print("Received:", response)
+
+    response_dict = json.loads(response)
+    sensors = response_dict["sensor_readings"]
+
+    for i in range(len(sensors)):
+        if sensors[i] is not None:
+            sensors[i] = float(sensors[i])
+        else:
+            sensors[i] = 0.0  
+
+    network_inputs = torch.tensor(sensors, dtype=torch.float32)
+    network_outputs = network(network_inputs)
+
+
+    print(network_outputs)
+
+
     # Send a message to the server
     controls = {
-        "forward": True,
-        "left": True,
-        "right": False,
-        "reverse": False
+        "forward": network_outputs[0].item() > 0.0,
+        "left": network_outputs[1].item() > 0.0,
+        "right": network_outputs[2].item() > 0.0,  # Assuming index 2 for 'right'
+        "reverse": network_outputs[3].item() > 0.0  # Assuming index 3 for 'reverse'
     }
 
     # Convert the controls to a JSON string
@@ -51,11 +77,6 @@ while True:
 
     # Send the JSON string to the server
     send_data(client_socket, json_controls)
-
-    # Receive a response from the server and process it
-    response = receive_data(client_socket)
-    if response:
-        print("Received:", response)
 
     # Add any necessary conditions to break the loop
     # For example, if a specific message is received, break the loop

@@ -4,6 +4,24 @@
 #include "server.h"
 #include <iostream>
 
+void resetGameState(Road& road, Car& car, std::vector<Car>& traffic, sf::View& view) {
+ 
+    int width = 600;
+    int height = 800;
+
+
+    car.resetGameState(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight());
+
+    // Reset each traffic car
+    int trafficInitialY[] = {height/2-300, height/2-600, height/2-600, height/2-900, height/2-900, height/2-1200, height/2-1200};
+    int laneIndex[] = {1, 0, 2, 0, 1, 2, 1}; // Corresponding lane indexes
+
+    for (size_t i = 0; i < traffic.size(); ++i) {
+        traffic[i].resetGameState(traffic[i].getX(), trafficInitialY[i], 50, 100, road.getLeft(), road.getRight()); // Reset with initial Y position, angle, and speed
+    }
+
+}
+
 int main() {
 
     Server server(8080);
@@ -53,6 +71,10 @@ int main() {
         // Update the car's state
         car.update(traffic, server);
 
+        if (car.isDamaged()) {
+            resetGameState(road, car, traffic, view);
+        }
+
         // Update the view to follow the car
         float verticalOffset = height * 0.2; // Adjust this value as needed
         view.setCenter(width / 2, car.getY() - verticalOffset);
@@ -79,3 +101,4 @@ int main() {
     
 
 }
+
