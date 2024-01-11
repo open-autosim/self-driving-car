@@ -14,7 +14,7 @@ all: install	build
 build:	$(EXECUTABLE)
 
 install:
-	brew install sfml && brew install nlohmann-json && brew install cppzmq
+	brew install sfml && brew install nlohmann-json
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(EXECUTABLE) $(LDFLAGS)
