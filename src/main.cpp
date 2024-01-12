@@ -22,11 +22,35 @@ void resetGameState(Road& road, Car& car, std::vector<Car>& traffic, sf::View& v
 
 }
 
-std::vector<Car> generateCars(int N, Road& road, int width, int height) 
+std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bool isTraffic = false) 
 {
-    std::vector<Car> cars;
-    for (int i = 0; i < N; i++) {
-        cars.push_back(Car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI")); 
+    std::vector<std::unique_ptr<Car>> cars;
+    cars.reserve(N);
+
+    if (!isTraffic) {
+        // Generate AI cars
+        for (int i = 0; i < N; i++) {
+            cars.push_back(std::make_unique<Car>(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"));
+        }
+    } else {
+        // Generate traffic cars with fixed spacing, max 2 cars per y-height block, and first car 400 units away
+        int numLanes = road.getLaneCount();
+        int spacing = 300; 
+        int initialYOffset = 400; // Offset for the first traffic car
+        int laneAllocation = 0;
+
+        for (int i = 0; i < N; i++) {
+            int yPos = height/2 - initialYOffset - (i / 2) * spacing; // Adjust initial position
+            int lane = laneAllocation % numLanes;
+            
+            cars.push_back(std::make_unique<Car>(road.getLaneCenter(lane), yPos, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2));
+
+            laneAllocation++;
+            if (laneAllocation % numLanes == 0) {
+                // After assigning a car to each lane, move to the next y-height block
+                laneAllocation += numLanes;
+            }
+        }
     }
     return cars;
 }
@@ -46,22 +70,13 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(width, height), "Self Driving Car");
     window.setFramerateLimit(60);
 
-    // Create a Car object
-    Road road(width/2, 300, 3); // Adjust the position and width as needed
-    std::vector<Car> cars = generateCars(1, road, width, height);
-    // Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); 
-    // Car car2(road.getLaneCenter(2), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI");
-    std::vector<Car> traffic = { 
-        Car(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(2), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(0), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(1), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2)
-    };
 
-    // Create a view (camera)
+    Road road(width/2, 300, 3); 
+    std::vector<std::unique_ptr<Car>> cars = generateCars(100, road, height);
+
+    std::vector<std::unique_ptr<Car>> traffic = generateCars(50, road, height, true);
+
+
     sf::View view(sf::FloatRect(0, 0, width, height));
 
     while (window.isOpen()) {
@@ -76,49 +91,55 @@ int main() {
                 window.close();
         }
 
+    
+        std::vector<std::unique_ptr<Car>> emptyTraffic; // An empty vector of unique_ptr<Car>
         for (auto& car : traffic) {
-            car.update(std::vector<Car> {}, server);
+            if (car) {
+                car->update(emptyTraffic, server);
+            }
         }
-
-
-        // Update the car's state
 
         for (auto& car : cars) {
-            car.update(traffic, server);
+            if (car) {
+                car->update(traffic, server);
+            }
+         }
+
+        float lowestY = std::numeric_limits<float>::max();
+        sf::Vector2f center;
+        for (auto& car : cars) {
+            if (car && car->getY() < lowestY) {
+                lowestY = car->getY();
+                center = sf::Vector2f(width / 2, car->getY() - height * 0.2f);
+            }
         }
 
-        // car.update(traffic, server);
-
-        // if (car.isDamaged()) {
-        //     resetGameState(road, car, traffic, view);
-        // }
-
-        // Update the view to follow the car
-        float verticalOffset = height * 0.2; // Adjust this value as needed
-
-        // get the car with the lowest y value
-        Car car = cars[0];
-        view.setCenter(width / 2, car.getY() - verticalOffset);
+        if (lowestY != std::numeric_limits<float>::max()) {
+            view.setCenter(center);
+        }
 
         window.clear(sf::Color(192, 192, 192));
-
-        // Apply the view
         window.setView(view);
-
-        // Draw the road and car
         road.draw(window);
-        for (auto& car : traffic) {
-            car.draw(window, "red");
-        }
-        
-        for (auto& car : cars) {
-            car.draw(window, "blue");
-        }
-        
-        // car.draw(window, "blue");
 
-        // Finally, display the rendered frame on screen
+        for (auto& car : traffic) {
+            car->draw(window, "red");
+        }
+
+        for (auto& car : cars) {
+            car->draw(window, "blue");
+        }
+
+        for (size_t i = 0; i < cars.size(); ++i) {
+            if (cars[i]) {
+                bool isFocused = (cars[i]->getY() == lowestY);  // Check if this car is the currently focused car
+                bool drawSensor = isFocused;
+                cars[i]->draw(window, "blue", isFocused, drawSensor);  // Pass the "isFocused" parameter
+            }
+        }
+
         window.display();
+
     }
 
     server.closeServer();

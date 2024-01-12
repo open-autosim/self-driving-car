@@ -16,6 +16,11 @@ build:	$(EXECUTABLE)
 install:
 	brew install sfml && brew install nlohmann-json
 
+run:
+	./bin/main &
+	python3 main.py
+
+
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(EXECUTABLE) $(LDFLAGS)
 

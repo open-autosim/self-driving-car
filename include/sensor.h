@@ -9,7 +9,7 @@ class Car;
 class Sensor {
 public:
     Sensor(Car& car);
-    void update(const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& borders, std::vector<Car> traffic);
+    void update(const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, const std::vector<std::unique_ptr<Car>>& traffic);
     void draw(sf::RenderWindow& window);
 
     std::vector<sf::Vector2f*> readings;
@@ -25,7 +25,7 @@ private:
     
 
     void castRays();
-    sf::Vector2f* getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic, int rayIndex);
+    sf::Vector2f* getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, const std::vector<std::unique_ptr<Car>>& traffic, int rayIndex);
 };
 
 #endif // SENSOR_H
