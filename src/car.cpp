@@ -76,13 +76,6 @@ void Car::assessDamage(const std::vector<std::unique_ptr<Car>>& traffic) {
 void Car::createPolygon() {
     polygon.clear(); 
 
-    // float angles[4] = {
-    //     angle - alpha,
-    //     angle + alpha,
-    //     M_PI + angle - alpha,
-    //     M_PI + angle + alpha
-    // };
-
     float angles[4] = {
         static_cast<float>(angle - alpha),
         static_cast<float>(angle + alpha),

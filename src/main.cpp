@@ -56,31 +56,6 @@ std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bo
 }
 
 
-
-// std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bool isTraffic = false) 
-// {
-//     std::vector<std::unique_ptr<Car>> cars;
-//     cars.reserve(N);
-
-//     if (!isTraffic) {
-//         // Generate AI cars
-//         for (int i = 0; i < N; i++) {
-//             cars.push_back(std::make_unique<Car>(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"));
-//         }
-//     } else {
-//         // Generate traffic cars with varying positions
-//         int trafficInitialY[] = {height/2-300, height/2-600, height/2-600, height/2-900, height/2-900, height/2-1200, height/2-1200};
-//         int laneIndex[] = {1, 0, 2, 0, 1, 2, 1}; // Corresponding lane indexes
-
-//         for (int i = 0; i < N; i++) {
-//             int lane = laneIndex[i % 7]; // Loop through lane indexes
-//             cars.push_back(std::make_unique<Car>(road.getLaneCenter(lane), trafficInitialY[i % 7], 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2));
-//         }
-//     }
-//     return cars;
-// }
-
-
 int main() {
 
     Server server(8080);
@@ -95,13 +70,13 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(width, height), "Self Driving Car");
     window.setFramerateLimit(60);
 
-    // Create a Car object
-    Road road(width/2, 300, 3); // Adjust the position and width as needed
+
+    Road road(width/2, 300, 3); 
     std::vector<std::unique_ptr<Car>> cars = generateCars(100, road, height);
 
     std::vector<std::unique_ptr<Car>> traffic = generateCars(50, road, height, true);
 
-    // Create a view (camera)
+
     sf::View view(sf::FloatRect(0, 0, width, height));
 
     while (window.isOpen()) {

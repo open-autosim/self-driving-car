@@ -20,7 +20,7 @@ private:
     int laneCount;
     float left, right;
     float margin = 7.0f; // Margin between the road edge and the border line
-    // std::vector<sf::Vector2f> borders;
+    
     std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders;
 };
 
