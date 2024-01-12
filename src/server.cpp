@@ -70,7 +70,7 @@ void Server::sendData(const std::string& data) {
     uint32_t dataLength = static_cast<uint32_t>(data.size());
     send(new_socket, &dataLength, sizeof(dataLength), 0);
     send(new_socket, data.c_str(), dataLength, 0); // Then send the data
-    std::cout << "Data sent: " << data << std::endl;
+    // std::cout << "Data sent: " << data << std::endl;
 }
 
 

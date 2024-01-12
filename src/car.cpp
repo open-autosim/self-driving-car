@@ -55,7 +55,7 @@ void Car::update(const std::vector<std::unique_ptr<Car>>& traffic, Server& serve
 void Car::assessDamage(const std::vector<std::unique_ptr<Car>>& traffic) {
     for (const auto& border : borders) {
         if (Utils::polysIntersect(polygon, {border.first, border.second})) {
-            std::cout << "Collision detected!" << std::endl;
+            // std::cout << "Collision detected!" << std::endl;
             damaged = true;   
             return; 
         }
@@ -63,7 +63,7 @@ void Car::assessDamage(const std::vector<std::unique_ptr<Car>>& traffic) {
 
     for (const auto& carPtr : traffic) {
         if (carPtr && Utils::polysIntersect(polygon, carPtr->polygon)) {
-            std::cout << "Collision detected!" << std::endl;
+            // std::cout << "Collision detected!" << std::endl;
             damaged = true;   
             return; 
         }
@@ -135,7 +135,7 @@ void Car::move() {
     y -= std::cos(angle) * speed;
 }
 
-void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocused) {
+void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocused, bool drawSensor) {
     
     sf::Color fillColor;
     if (damaged) {
@@ -156,7 +156,7 @@ void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocuse
     }
 
     window.draw(polygonShape);
-    if (sensor) {
+    if (sensor && drawSensor) {
         sensor->draw(window);
     }
 }

@@ -62,7 +62,7 @@ int main() {
 
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
-    std::vector<std::unique_ptr<Car>> cars = generateCars(50, road, height);
+    std::vector<std::unique_ptr<Car>> cars = generateCars(100, road, height);
 
     std::vector<std::unique_ptr<Car>> traffic = generateCars(7, road, height, true);
 
@@ -123,7 +123,8 @@ int main() {
         for (size_t i = 0; i < cars.size(); ++i) {
             if (cars[i]) {
                 bool isFocused = (cars[i]->getY() == lowestY);  // Check if this car is the currently focused car
-                cars[i]->draw(window, "blue", isFocused);  // Pass the "isFocused" parameter
+                bool drawSensor = isFocused;
+                cars[i]->draw(window, "blue", isFocused, drawSensor);  // Pass the "isFocused" parameter
             }
         }
 

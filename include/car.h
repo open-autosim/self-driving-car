@@ -19,7 +19,7 @@ public:
     ~Car();
 
     void update(const std::vector<std::unique_ptr<Car>>& traffic, Server& server);
-    void draw(sf::RenderWindow& window, const std::string& color, bool isFocused = false);
+    void draw(sf::RenderWindow& window, const std::string& color, bool isFocused = false, bool drawSensor = false);
     void resetGameState(float x, float y, float width, float height, float roadLeft, float roadRight);
 
     float getX() const { return x; }
