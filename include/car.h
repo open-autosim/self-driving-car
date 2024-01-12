@@ -15,11 +15,11 @@ class Car {
 public:
     Car(float x, float y, float width, float height, float roadLeft, float roadRight, 
         std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, 
-        int maxSpeed = 10, int id = nextID);
+        int maxSpeed = 4, int id = nextID);
     ~Car();
 
-    void update(const std::vector<Car>& traffic, Server& server);
-    void draw(sf::RenderWindow& window, const std::string& color);
+    void update(const std::vector<std::unique_ptr<Car>>& traffic, Server& server);
+    void draw(sf::RenderWindow& window, const std::string& color, bool isFocused = false);
     void resetGameState(float x, float y, float width, float height, float roadLeft, float roadRight);
 
     float getX() const { return x; }
@@ -32,7 +32,7 @@ public:
 private:
     void move();
     void createPolygon();
-    void assessDamage(const std::vector<Car>& traffic);
+    void assessDamage(const std::vector<std::unique_ptr<Car>>& traffic);
     void sendData(Server& server);
     void receiveData(Server& server);
 

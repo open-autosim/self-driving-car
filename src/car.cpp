@@ -33,8 +33,7 @@ std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controls
     createPolygon(); // Create the initial polygon
 }
 
-void Car::update(const std::vector<Car>& traffic, Server& server) {
-    
+void Car::update(const std::vector<std::unique_ptr<Car>>& traffic, Server& server) {
     if (!damaged) {
         controls.update(); 
         move();
@@ -47,14 +46,13 @@ void Car::update(const std::vector<Car>& traffic, Server& server) {
     }
 
     // function to send data to server
-    if (controlsType == "AI") {
+    if (controlsType == "AI" && !damaged) {
         sendData(server);
         receiveData(server);
     }
 }
 
-void Car::assessDamage(const std::vector<Car>& traffic) {
-    
+void Car::assessDamage(const std::vector<std::unique_ptr<Car>>& traffic) {
     for (const auto& border : borders) {
         if (Utils::polysIntersect(polygon, {border.first, border.second})) {
             std::cout << "Collision detected!" << std::endl;
@@ -63,8 +61,8 @@ void Car::assessDamage(const std::vector<Car>& traffic) {
         }
     }
 
-    for (const auto& car : traffic) {
-        if (Utils::polysIntersect(polygon, car.polygon)) {
+    for (const auto& carPtr : traffic) {
+        if (carPtr && Utils::polysIntersect(polygon, carPtr->polygon)) {
             std::cout << "Collision detected!" << std::endl;
             damaged = true;   
             return; 
@@ -74,15 +72,25 @@ void Car::assessDamage(const std::vector<Car>& traffic) {
     damaged = false;
 }
 
+
 void Car::createPolygon() {
     polygon.clear(); 
 
+    // float angles[4] = {
+    //     angle - alpha,
+    //     angle + alpha,
+    //     M_PI + angle - alpha,
+    //     M_PI + angle + alpha
+    // };
+
     float angles[4] = {
-        angle - alpha,
-        angle + alpha,
-        M_PI + angle - alpha,
-        M_PI + angle + alpha
+        static_cast<float>(angle - alpha),
+        static_cast<float>(angle + alpha),
+        static_cast<float>(M_PI + angle - alpha),
+        static_cast<float>(M_PI + angle + alpha)
     };
+
+
 
     for (int i = 0; i < 4; ++i) {
         polygon.push_back(sf::Vector2f(
@@ -127,13 +135,20 @@ void Car::move() {
     y -= std::cos(angle) * speed;
 }
 
-void Car::draw(sf::RenderWindow& window, const std::string& color) {
-    // Update color only if necessary
+void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocused) {
+    
     sf::Color fillColor;
     if (damaged) {
         fillColor = sf::Color(190, 190, 190);
     } else {
-        fillColor = (color == "red") ? sf::Color::Red : sf::Color::Blue;
+        if (color == "red") {
+            fillColor = sf::Color::Red;
+        } else if (color == "blue") {
+            fillColor = sf::Color::Blue;
+            if (!isFocused) {
+                fillColor.a = 51;  // Set alpha to 51 (20% transparency) for non-focused blue cars
+            }
+        }
     }
 
     if (polygonShape.getFillColor() != fillColor) {
@@ -145,6 +160,7 @@ void Car::draw(sf::RenderWindow& window, const std::string& color) {
         sensor->draw(window);
     }
 }
+
 
 
 void Car::sendData(Server& server) {
