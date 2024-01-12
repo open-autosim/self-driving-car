@@ -80,7 +80,7 @@ char* Server::receiveData() {
     char* data = new char[dataLength + 1];
     recv(new_socket, data, dataLength, 0); // Then receive the data
     data[dataLength] = '\0';
-    std::cout << "Data received: " << data << std::endl;
+    // std::cout << "Data received: " << data << std::endl;
     return data;
 }
 

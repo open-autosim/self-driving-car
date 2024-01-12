@@ -22,11 +22,12 @@ void resetGameState(Road& road, Car& car, std::vector<Car>& traffic, sf::View& v
 
 }
 
-std::vector<Car> generateCars(int N, Road& road, int width, int height) 
+std::vector<Car> generateCars(int N, Road& road, int height) 
 {
     std::vector<Car> cars;
+    cars.reserve(N); // Reserve memory for N cars
     for (int i = 0; i < N; i++) {
-        cars.push_back(Car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI")); 
+        cars.emplace_back(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); 
     }
     return cars;
 }
@@ -48,18 +49,25 @@ int main() {
 
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
-    std::vector<Car> cars = generateCars(1, road, width, height);
+    std::vector<Car> cars = generateCars(1, road, height);
+
+    //print cars created
+    std::cout << "Cars created: " << cars.size() << std::endl;
+
     // Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); 
     // Car car2(road.getLaneCenter(2), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI");
-    std::vector<Car> traffic = { 
-        Car(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(2), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(0), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(1), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
-        Car(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2)
-    };
+    std::vector<Car> traffic;
+    traffic.reserve(7);
+
+    traffic.emplace_back(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(2), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(0), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(1), height/2-900, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(2), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    traffic.emplace_back(road.getLaneCenter(1), height/2-1200, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2);
+    
+    std::cout << "Traffic created: " << traffic.size() << std::endl;
 
     // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
@@ -80,12 +88,19 @@ int main() {
             car.update(std::vector<Car> {}, server);
         }
 
+        std::cout << "Traffic updated" << std::endl;
 
-        // Update the car's state
+        if (!cars.empty()) {
+            cars[0].update(traffic, server);
+            std::cout << "Car 0 updated" << std::endl;
 
-        for (auto& car : cars) {
-            car.update(traffic, server);
+            // Update the view to follow the player car
+            float verticalOffset = height * 0.2;
+            view.setCenter(width / 2, cars[0].getY() - verticalOffset);
         }
+        
+
+
 
         // car.update(traffic, server);
 
@@ -94,31 +109,26 @@ int main() {
         // }
 
         // Update the view to follow the car
-        float verticalOffset = height * 0.2; // Adjust this value as needed
+        // float verticalOffset = height * 0.2; // Adjust this value as needed
 
-        // get the car with the lowest y value
-        Car car = cars[0];
-        view.setCenter(width / 2, car.getY() - verticalOffset);
+        // // get the car with the lowest y value
+        // Car car = cars[0];
+        // view.setCenter(width / 2, car.getY() - verticalOffset);
+
 
         window.clear(sf::Color(192, 192, 192));
-
-        // Apply the view
         window.setView(view);
-
-        // Draw the road and car
         road.draw(window);
+
         for (auto& car : traffic) {
             car.draw(window, "red");
         }
-        
-        for (auto& car : cars) {
-            car.draw(window, "blue");
+        if (!cars.empty()) {
+            cars[0].draw(window, "blue");
         }
-        
-        // car.draw(window, "blue");
 
-        // Finally, display the rendered frame on screen
         window.display();
+
     }
 
     server.closeServer();
