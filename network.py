@@ -19,7 +19,7 @@ class NeuralNetwork(nn.Module):
         x = torch.heaviside(x, values=torch.tensor([0.0]).to(x.device))
         return x
 
-    def mutate(self, amount=1):
+    def mutate(self, amount=0.2):
         with torch.no_grad():
             for layer in self.layers:
                 layer.weight += amount * (torch.rand_like(layer.weight) * 2 - 1)

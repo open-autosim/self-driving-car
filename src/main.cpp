@@ -99,7 +99,7 @@ int main() {
     Road road(width/2, 300, 3); // Adjust the position and width as needed
     std::vector<std::unique_ptr<Car>> cars = generateCars(100, road, height);
 
-    std::vector<std::unique_ptr<Car>> traffic = generateCars(20, road, height, true);
+    std::vector<std::unique_ptr<Car>> traffic = generateCars(50, road, height, true);
 
     // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));
