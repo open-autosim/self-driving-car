@@ -24,4 +24,6 @@ bin/
 #model files
 min_y_values.json
 saved_models/
+__pycache__/
+```
 
