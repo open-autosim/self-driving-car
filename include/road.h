@@ -13,6 +13,7 @@ public:
     float getLeft() { return left; }
     float getRight() { return right; }
     std::vector<std::pair<sf::Vector2f, sf::Vector2f>> getBorders() { return borders; }
+    int getLaneCount() { return laneCount; }
 
 private:
     float center, width;

@@ -33,17 +33,52 @@ std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bo
             cars.push_back(std::make_unique<Car>(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"));
         }
     } else {
-        // Generate traffic cars with varying positions
-        int trafficInitialY[] = {height/2-300, height/2-600, height/2-600, height/2-900, height/2-900, height/2-1200, height/2-1200};
-        int laneIndex[] = {1, 0, 2, 0, 1, 2, 1}; // Corresponding lane indexes
+        // Generate traffic cars with fixed spacing, max 2 cars per y-height block, and first car 400 units away
+        int numLanes = road.getLaneCount();
+        int spacing = 300; 
+        int initialYOffset = 400; // Offset for the first traffic car
+        int laneAllocation = 0;
 
         for (int i = 0; i < N; i++) {
-            int lane = laneIndex[i % 7]; // Loop through lane indexes
-            cars.push_back(std::make_unique<Car>(road.getLaneCenter(lane), trafficInitialY[i % 7], 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2));
+            int yPos = height/2 - initialYOffset - (i / 2) * spacing; // Adjust initial position
+            int lane = laneAllocation % numLanes;
+            
+            cars.push_back(std::make_unique<Car>(road.getLaneCenter(lane), yPos, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2));
+
+            laneAllocation++;
+            if (laneAllocation % numLanes == 0) {
+                // After assigning a car to each lane, move to the next y-height block
+                laneAllocation += numLanes;
+            }
         }
     }
     return cars;
 }
+
+
+
+// std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bool isTraffic = false) 
+// {
+//     std::vector<std::unique_ptr<Car>> cars;
+//     cars.reserve(N);
+
+//     if (!isTraffic) {
+//         // Generate AI cars
+//         for (int i = 0; i < N; i++) {
+//             cars.push_back(std::make_unique<Car>(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"));
+//         }
+//     } else {
+//         // Generate traffic cars with varying positions
+//         int trafficInitialY[] = {height/2-300, height/2-600, height/2-600, height/2-900, height/2-900, height/2-1200, height/2-1200};
+//         int laneIndex[] = {1, 0, 2, 0, 1, 2, 1}; // Corresponding lane indexes
+
+//         for (int i = 0; i < N; i++) {
+//             int lane = laneIndex[i % 7]; // Loop through lane indexes
+//             cars.push_back(std::make_unique<Car>(road.getLaneCenter(lane), trafficInitialY[i % 7], 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2));
+//         }
+//     }
+//     return cars;
+// }
 
 
 int main() {
@@ -64,7 +99,7 @@ int main() {
     Road road(width/2, 300, 3); // Adjust the position and width as needed
     std::vector<std::unique_ptr<Car>> cars = generateCars(100, road, height);
 
-    std::vector<std::unique_ptr<Car>> traffic = generateCars(7, road, height, true);
+    std::vector<std::unique_ptr<Car>> traffic = generateCars(20, road, height, true);
 
     // Create a view (camera)
     sf::View view(sf::FloatRect(0, 0, width, height));

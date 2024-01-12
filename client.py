@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List, Optional
 import signal
 import sys
+import copy
 
 
 class Client:
@@ -46,7 +47,10 @@ class Client:
         best_model = torch.load(os.path.join(self.model_save_path, best_model_index))
 
         for car_id in self.min_y_values.keys():
-            self.networks[car_id] = best_model
+            self.networks[car_id] = copy.deepcopy(best_model)
+
+            if car_id != best_model_index:
+                self.networks[car_id].mutate()
 
     def save_model(self, car_id, model, y_value):
 
@@ -124,7 +128,6 @@ class Client:
         
         if car_id_str not in self.networks:
             self.networks[car_id_str] = nn.NeuralNetwork(neuron_counts or self.default_neuron_counts)
-            print(f"Created new network for car {car_id_str} with neuron counts {neuron_counts or self.default_neuron_counts}")
 
         return self.networks[car_id_str]
 
