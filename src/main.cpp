@@ -22,6 +22,16 @@ void resetGameState(Road& road, Car& car, std::vector<Car>& traffic, sf::View& v
 
 }
 
+std::vector<Car> generateCars(int N, Road& road, int width, int height) 
+{
+    std::vector<Car> cars;
+    for (int i = 0; i < N; i++) {
+        cars.push_back(Car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI")); 
+    }
+    return cars;
+}
+
+
 int main() {
 
     Server server(8080);
@@ -38,7 +48,9 @@ int main() {
 
     // Create a Car object
     Road road(width/2, 300, 3); // Adjust the position and width as needed
-    Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); // Adjust the position and size as needed
+    std::vector<Car> cars = generateCars(1, road, width, height);
+    // Car car(road.getLaneCenter(1), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI"); 
+    // Car car2(road.getLaneCenter(2), height/2, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "AI");
     std::vector<Car> traffic = { 
         Car(road.getLaneCenter(1), height/2-300, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
         Car(road.getLaneCenter(0), height/2-600, 50, 100, road.getLeft(), road.getRight(), road.getBorders(), "DUMMY", 2),
@@ -68,15 +80,24 @@ int main() {
             car.update(std::vector<Car> {}, server);
         }
 
-        // Update the car's state
-        car.update(traffic, server);
 
-        if (car.isDamaged()) {
-            resetGameState(road, car, traffic, view);
+        // Update the car's state
+
+        for (auto& car : cars) {
+            car.update(traffic, server);
         }
+
+        // car.update(traffic, server);
+
+        // if (car.isDamaged()) {
+        //     resetGameState(road, car, traffic, view);
+        // }
 
         // Update the view to follow the car
         float verticalOffset = height * 0.2; // Adjust this value as needed
+
+        // get the car with the lowest y value
+        Car car = cars[0];
         view.setCenter(width / 2, car.getY() - verticalOffset);
 
         window.clear(sf::Color(192, 192, 192));
@@ -89,7 +110,12 @@ int main() {
         for (auto& car : traffic) {
             car.draw(window, "red");
         }
-        car.draw(window, "blue");
+        
+        for (auto& car : cars) {
+            car.draw(window, "blue");
+        }
+        
+        // car.draw(window, "blue");
 
         // Finally, display the rendered frame on screen
         window.display();

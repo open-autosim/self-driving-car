@@ -13,6 +13,8 @@ public:
     void draw(sf::RenderWindow& window);
 
     std::vector<sf::Vector2f*> readings;
+    //initialize offsets to be all 0
+    std::vector<float> offsets;
 
 private:
     Car& m_car;
@@ -23,7 +25,7 @@ private:
     
 
     void castRays();
-    sf::Vector2f* getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic);
+    sf::Vector2f* getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic, int rayIndex);
 };
 
 #endif // SENSOR_H

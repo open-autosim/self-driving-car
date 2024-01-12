@@ -3,24 +3,37 @@
 #include "car.h"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
-Sensor::Sensor(Car& car) : m_car(car), rayCount(5), rayLength(150), raySpread(M_PI / 2) {}
+Sensor::Sensor(Car& car) : m_car(car), rayCount(5), rayLength(150), raySpread(M_PI / 2) {
+    offsets = std::vector<float>(rayCount, 1.0f);
+}
 
 void Sensor::update(const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic) {
     castRays();
     readings.clear();
 
-    for (auto& ray : rays) {
-        readings.push_back(getReading(ray, roadBorders, traffic));
+    // for (auto& ray : rays) {
+    //     readings.push_back(getReading(ray, roadBorders, traffic));
+    // }
+    for (int i = 0; i < rays.size(); i++) {
+        readings.push_back(getReading(rays[i], roadBorders, traffic, i));
     }
+    
 }
 
-sf::Vector2f* Sensor::getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic) {
+sf::Vector2f* Sensor::getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ray, const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& roadBorders, std::vector<Car> traffic, int rayIndex) {
     std::vector<sf::Vector2f> touches;
+    size_t offsetIndex = 0;
+    offsets[rayIndex] = 1.0f;
+
+
     for (const auto& border : roadBorders) {
         std::optional<sf::Vector2f> touch = Utils::getIntersection(ray.first, ray.second, border.first, border.second);
         if (touch.has_value()) {
             touches.push_back(touch.value());
+            float distance = Utils::distance(ray.first, touch.value());
+            offsets[rayIndex] = distance / rayLength;
         }
     }
 
@@ -30,6 +43,11 @@ sf::Vector2f* Sensor::getReading(const std::pair<sf::Vector2f, sf::Vector2f>& ra
             std::optional<sf::Vector2f> touch = Utils::getIntersection(ray.first, ray.second, polygon[j], polygon[(j + 1) % polygon.size()]);
             if (touch.has_value()) {
                 touches.push_back(touch.value());
+                float distance = Utils::distance(ray.first, touch.value());
+                float normalizedDistance = distance / rayLength;
+                if (normalizedDistance < offsets[rayIndex]) {
+                    offsets[rayIndex] = normalizedDistance;
+                }
             }
         }
     }

@@ -45,10 +45,11 @@ while True:
 
     # Receive a response from the server and process it
     response = receive_data(client_socket)
-    if response:
-        print("Received:", response)
+    # if response:
+    #     print("Received:", response)
 
     response_dict = json.loads(response)
+    id = response_dict["id"]
     sensors = response_dict["sensor_readings"]
 
     for i in range(len(sensors)):
@@ -63,17 +64,18 @@ while True:
 
     print(network_outputs)
 
-
-    # Send a message to the server
     controls = {
-        "forward": network_outputs[0].item() > 0.0,
-        "left": network_outputs[1].item() > 0.0,
-        "right": network_outputs[2].item() > 0.0,  # Assuming index 2 for 'right'
-        "reverse": network_outputs[3].item() > 0.0  # Assuming index 3 for 'reverse'
+        "forward": int(network_outputs[0].item() > -0.5),
+        "left": int(network_outputs[1].item() > 0.5),
+        "right": int(network_outputs[2].item() > 0.5),  # Assuming index 2 for 'right'
+        "reverse": int(network_outputs[3].item() > 0.5)  # Assuming index 3 for 'reverse'
     }
 
-    # Convert the controls to a JSON string
-    json_controls = json.dumps(controls)
+    # Convert the id and controls to a JSON string
+    json_controls = json.dumps({
+        "id": id,
+        "controls": controls
+    })
 
     # Send the JSON string to the server
     send_data(client_socket, json_controls)

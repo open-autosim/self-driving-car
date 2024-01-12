@@ -3,19 +3,23 @@
 #include "utils.h"
 #include <cmath>
 
+int Car::nextID = 1;
+
 Car::~Car() {
     delete sensor; // Delete the sensor in the destructor
 }
 
 Car::Car(float x, float y, float width, float height, float roadLeft, float roadRight, 
-std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed)
+std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed, int id)
     : x(x), y(y), width(width), height(height), 
     speed(0), acceleration(0.2), maxSpeed(maxSpeed), 
     friction(0.05), angle(0), 
     roadLeft(roadLeft), roadRight(roadRight), borders(borders), 
     controls(controlsType), controlsType(controlsType),
-    sensor(controlsType == "DUMMY" ? nullptr : new Sensor(*this)) {
+    sensor(controlsType == "DUMMY" ? nullptr : new Sensor(*this)), id(id) {
 
+    nextID++;
+    
     // if (!texture.loadFromFile("include/car.png")) {
     //     std::cerr << "Error: Unable to load car texture!" << std::endl;
     //     // Handle the error (for example, by exiting the program)
@@ -154,6 +158,7 @@ void Car::sendData(Server& server) {
     nlohmann::json data;
 
     // Add car's basic information
+    data["id"] = id;
     data["position"] = {x, y};
     data["speed"] = speed;
     data["angle"] = angle;
@@ -169,11 +174,13 @@ void Car::sendData(Server& server) {
     // Add sensor data if available
     if (sensor != nullptr) {
         std::vector<nlohmann::json> sensorReadings;
-        for (const auto& reading : sensor->readings) {
-            if (reading) {
-                sensorReadings.push_back({{"x", reading->x}, {"y", reading->y}});
+        for (const auto& offset : sensor->offsets) {
+            // Check if the offset is NaN and make it zero if it is
+            if (std::isnan(offset)) {
+                sensorReadings.push_back(0);
             } else {
-                sensorReadings.push_back(nullptr);
+                // Assuming the offset is a float value, add it directly to sensorReadings
+                sensorReadings.push_back(1-offset);
             }
         }
         data["sensor_readings"] = sensorReadings;
@@ -194,13 +201,18 @@ void Car::receiveData(Server& server) {
 
     // Parse the data into a JSON object
     nlohmann::json data = nlohmann::json::parse(dataStr);
-    
+
+    int receivedId = data["id"];
+    if (receivedId != this->id) {
+        // If the ID does not match, ignore the controls update
+        return;
+    }
 
     // Update the car's controls
-    controls.forward = data["forward"];
-    controls.reverse = data["reverse"];
-    controls.left = data["left"];
-    controls.right = data["right"];
+    controls.forward = data["controls"]["forward"] == 1;
+    controls.reverse = data["controls"]["reverse"] == 1;
+    controls.left = data["controls"]["left"] == 1;
+    controls.right = data["controls"]["right"] == 1;
 
     
 }

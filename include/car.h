@@ -11,9 +11,13 @@
 
 class Car {
 public:
-    Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed = 4);
+
+    static int nextID;
+    
+    Car(float x, float y, float width, float height, float roadLeft, float roadRight, std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controlsType, int maxSpeed = 4, int id = nextID);
     ~Car(); 
 
+    int id;
     Sensor *sensor;
     
     sf::Sprite sprite;
