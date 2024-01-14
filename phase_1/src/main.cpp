@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
-#include "car.h"
-#include "road.h"
-#include "server.h"
+#include "../include/car.h"
+#include "../include/road.h"
+#include "../include/server.h"
 #include <iostream>
 #include <random>
 
