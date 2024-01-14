@@ -3,6 +3,7 @@
 #include "road.h"
 #include "server.h"
 #include <iostream>
+#include <random>
 
 void resetGameState(Road& road, Car& car, std::vector<Car>& traffic, sf::View& view) {
  
@@ -54,7 +55,6 @@ std::vector<std::unique_ptr<Car>> generateCars(int N, Road& road, int height, bo
     }
     return cars;
 }
-
 
 
 int main() {

@@ -38,7 +38,7 @@ class ModelManager:
             self.networks[car_id] = copy.deepcopy(best_model)
 
             if car_id != best_model_index:
-                self.networks[car_id].mutate(.5)
+                self.networks[car_id].mutate(0.1)
 
     def save_model(self, car_id, model, y_value):
 

@@ -37,7 +37,7 @@ class NetworkClient:
                     return None
                 data += packet
 
-            print(f"Received data: {data}")
+            # print(f"Received data: {data}")
 
             return data.decode()
         except Exception as e:

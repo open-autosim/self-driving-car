@@ -31,6 +31,19 @@ std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders, std::string controls
     alpha = std::atan2(width, height);
 
     createPolygon(); // Create the initial polygon
+
+    // for image
+    if (!texture.loadFromFile("assets/car.png")) {
+        std::cerr << "Error loading texture from file" << std::endl;
+        // Handle the error (e.g., use a default texture or exit)
+    }
+    
+    carShape.setTexture(&texture);
+    carShape.setSize(sf::Vector2f(width, height));
+    carShape.setOrigin(width / 2, height / 2);
+    
+    
+
 }
 
 void Car::update(const std::vector<std::unique_ptr<Car>>& traffic, Server& server) {
@@ -126,6 +139,7 @@ void Car::move() {
     // Update position
     x -= std::sin(angle) * speed;
     y -= std::cos(angle) * speed;
+
 }
 
 void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocused, bool drawSensor) {
@@ -144,11 +158,17 @@ void Car::draw(sf::RenderWindow& window, const std::string& color, bool isFocuse
         }
     }
 
-    if (polygonShape.getFillColor() != fillColor) {
-        polygonShape.setFillColor(fillColor);
-    }
+    // if (polygonShape.getFillColor() != fillColor) {
+    //     polygonShape.setFillColor(fillColor);
+    // }
+    // window.draw(polygonShape);
+    
+    carShape.setPosition(x, y);
+    carShape.setRotation(-angle * 180 / M_PI);
+    carShape.setFillColor(fillColor);
 
-    window.draw(polygonShape);
+    window.draw(carShape);
+
     if (sensor && drawSensor) {
         sensor->draw(window);
     }

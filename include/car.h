@@ -47,6 +47,7 @@ private:
     std::vector<std::pair<sf::Vector2f, sf::Vector2f>> borders;
     // std::vector<sf::Vector2f> polygon;
     sf::ConvexShape polygonShape;
+    sf::RectangleShape carShape;
     Controls controls;
     std::string controlsType;
     std::unique_ptr<Sensor> sensor;
@@ -56,6 +57,10 @@ private:
     // Precomputed values for polygon creation
     float rad;
     float alpha;
+
+    // for image
+    sf::Texture texture;
+    sf::Sprite sprite;
 };
 
 #endif // CAR_H
