@@ -11,7 +11,8 @@ public:
 
     bool equals(const Point& point) const;
 
-    void draw(sf::RenderWindow& window) const;
+    // Add default values for size and color here
+    void draw(sf::RenderWindow& window, float size = 18, sf::Color color = sf::Color::Black) const;
 };
 
 #endif // POINT_H

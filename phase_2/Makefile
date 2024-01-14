@@ -3,7 +3,7 @@ CXXFLAGS = -Iinclude -I/opt/homebrew/include -std=c++17
 LDFLAGS = -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # List of source files
-SOURCES = src/main.cpp src/graph.cpp src/point.cpp src/segment.cpp
+SOURCES = src/main.cpp src/math/graph.cpp src/primitives/point.cpp src/primitives/segment.cpp src/utils/button.cpp
 # Object files have the same name but with .o extensions
 OBJECTS = $(SOURCES:.cpp=.o)
 # Name of the final executable
@@ -26,4 +26,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f src/*.o $(EXECUTABLE)
+	rm -f src/*.o src/math/*.o src/primitives/*.o $(EXECUTABLE)
