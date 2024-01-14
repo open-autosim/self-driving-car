@@ -18,7 +18,7 @@ install:
 
 run:
 	./bin/main &
-	python3 main.py
+	python3 client.py
 
 
 $(EXECUTABLE): $(OBJECTS)

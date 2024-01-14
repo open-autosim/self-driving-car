@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iostream>
 
-Sensor::Sensor(Car& car) : m_car(car), rayCount(5), rayLength(150), raySpread(M_PI / 2) {
+Sensor::Sensor(Car& car) : m_car(car), rayCount(5), rayLength(200), raySpread(M_PI / 2) {
     offsets = std::vector<float>(rayCount, 1.0f);
 }
 
