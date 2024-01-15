@@ -2,12 +2,14 @@
 #define SEGMENT_H
 
 #include "primitives/point.h"
+#include <memory>
 
 class Segment {
 public:
-    Point p1, p2;
+    std::shared_ptr<Point> p1;
+    std::shared_ptr<Point> p2;
 
-    Segment(const Point& p1, const Point& p2);
+    Segment(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2);
 
     bool equals(const Segment& seg) const;
     bool includes(const Point& point) const;

@@ -1,24 +1,25 @@
 #include "primitives/segment.h"
 
-Segment::Segment(const Point& p1, const Point& p2) : p1(p1), p2(p2) {}
+Segment::Segment(std::shared_ptr<Point> p1, std::shared_ptr<Point> p2) : p1(p1), p2(p2) {}
 
 bool Segment::equals(const Segment& seg) const {
-    return includes(seg.p1) && includes(seg.p2);
+    return includes(*seg.p1) && includes(*seg.p2);
 }
 
 bool Segment::includes(const Point& point) const {
-    return (p1.equals(point) || p2.equals(point));
+    return (p1->equals(point) || p2->equals(point));
 }
-
 
 void Segment::draw(sf::RenderWindow& window, float width, sf::Color color) const {
     sf::VertexArray line(sf::Lines, 2);
-    line[0].position = sf::Vector2f(p1.x, p1.y);
-    line[1].position = sf::Vector2f(p2.x, p2.y);
-    line[0].color = sf::Color::Black;
-    line[1].color = sf::Color::Black;
+    line[0].position = sf::Vector2f(p1->x, p1->y);
+    line[1].position = sf::Vector2f(p2->x, p2->y);
+    line[0].color = color;
+    line[1].color = color;
+
     window.draw(line);
 }
+
 
 // void Segment::draw(sf::RenderWindow& window, float width, sf::Color color) const {
 //     sf::Vector2f direction(p2.x - p1.x, p2.y - p1.y);

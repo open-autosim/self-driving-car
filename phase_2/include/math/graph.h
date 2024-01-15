@@ -2,18 +2,20 @@
 #define GRAPH_H
 
 #include <vector>
+#include <memory>
 #include "primitives/segment.h"
 
 class Graph {
-    std::vector<Point> points;
+    std::vector<std::shared_ptr<Point>> points;
     std::vector<Segment> segments;
 
 public:
-    Graph(const std::vector<Point>& points, const std::vector<Segment>& segments);
+    Graph(const std::vector<std::shared_ptr<Point>>& points, const std::vector<Segment>& segments);
 
-    std::vector<Point> getPoints() const { return points; }
-    std::vector<Segment> getSegments() const { return segments; }
+    const std::vector<std::shared_ptr<Point>>& getPoints() const { return points; }
+    std::vector<Segment>& getSegments() { return segments; }
 
+    std::shared_ptr<Point> getPoint(const Point& point) const;
     bool containsPoint(const Point& point) const;
     void addPoint(const Point& point);
     bool tryAddPoint(const Point& point);
@@ -23,7 +25,8 @@ public:
     void removeSegment(const Segment& segment);
     void removePoint(const Point& point);
     std::vector<Segment> getSegmentsWithPoint(const Point& point) const;
-    void dispose();
+
+
 
     void draw(sf::RenderWindow& window) const;
 };

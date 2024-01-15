@@ -1,19 +1,20 @@
 #include "math/graph.h"
 
-Graph::Graph(const std::vector<Point>& points, const std::vector<Segment>& segments) : points(points), segments(segments) {}
-
-
+Graph::Graph(const std::vector<std::shared_ptr<Point>>& points, const std::vector<Segment>& segments)
+    : points(points), segments(segments) {}
 
 bool Graph::containsPoint(const Point& point) const {
-    
     for (const auto& p : points) {
-        if (p.equals(point)) {
+        if (p->equals(point)) {
             return true;
         }
     }
     return false;
 }
 
+void Graph::addPoint(const Point& point) {
+    points.push_back(std::make_shared<Point>(point));
+}
 
 bool Graph::tryAddPoint(const Point& point) {
     if (!containsPoint(point)) {
@@ -23,10 +24,6 @@ bool Graph::tryAddPoint(const Point& point) {
     return false;
 }
 
-
-void Graph::addPoint(const Point& point) {
-    points.push_back(point);
-}
 
 bool Graph::containsSegment(const Segment& segment) const {
     for (const auto& seg : segments) {
@@ -42,7 +39,7 @@ void Graph::addSegment(const Segment& segment) {
 }
 
 bool Graph::tryAddSegment(const Segment& segment) {
-    if (!containsSegment(segment) && !segment.p1.equals(segment.p2)) {
+    if (!containsSegment(segment) && !(segment.p1->equals(*segment.p2))) {
         addSegment(segment);
         return true;
     }
@@ -50,28 +47,20 @@ bool Graph::tryAddSegment(const Segment& segment) {
 }
 
 void Graph::removeSegment(const Segment& segment) {
-    for (auto it = segments.begin(); it != segments.end(); ++it) {
-        if (it->equals(segment)) {
-            segments.erase(it);
-            return;
-        }
-    }
+    auto it = std::remove_if(segments.begin(), segments.end(), 
+                             [&segment](const Segment& s) { return s.equals(segment); });
+    segments.erase(it, segments.end());
 }
 
 void Graph::removePoint(const Point& point) {
+    auto it = std::remove_if(points.begin(), points.end(), 
+                             [&point](const std::shared_ptr<Point>& p) { return p->equals(point); });
+    points.erase(it, points.end());
 
-    std::vector<Segment> segs = getSegmentsWithPoint(point);
-
-    for (const auto& seg : segs) {
-        removeSegment(seg);
-    }
-
-    for (auto it = points.begin(); it != points.end(); ++it) {
-        if (it->equals(point)) {
-            points.erase(it);
-            return;
-        }
-    }
+    // Also remove associated segments
+    segments.erase(std::remove_if(segments.begin(), segments.end(), 
+                                  [&point](const Segment& s) { return s.includes(point); }),
+                   segments.end());
 }
 
 std::vector<Segment> Graph::getSegmentsWithPoint(const Point& point) const {
@@ -84,9 +73,13 @@ std::vector<Segment> Graph::getSegmentsWithPoint(const Point& point) const {
     return segs;
 }
 
-void Graph::dispose() {
-    points.clear();
-    segments.clear();
+std::shared_ptr<Point> Graph::getPoint(const Point& point) const {
+    for (const auto& p : points) {
+        if (p->equals(point)) {
+            return p;
+        }
+    }
+    return nullptr;
 }
 
 void Graph::draw(sf::RenderWindow& window) const {
@@ -94,6 +87,6 @@ void Graph::draw(sf::RenderWindow& window) const {
         seg.draw(window);
     }
     for (const auto& point : points) {
-        point.draw(window);
+        point->draw(window);
     }
 }
