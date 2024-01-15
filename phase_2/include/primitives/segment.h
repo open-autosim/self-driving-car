@@ -13,7 +13,7 @@ public:
 
     bool equals(const Segment& seg) const;
     bool includes(const Point& point) const;
-    void draw(sf::RenderWindow& window, float width = 2, sf::Color color = sf::Color::Black) const;
+    void draw(sf::RenderWindow& window, float width = 2, sf::Color color = sf::Color::Black, bool dash = false) const;
 };
 
 #endif // SEGMENT_H

@@ -42,10 +42,6 @@ int main() {
     // Initialize GraphEditor with Graph
     GraphEditor graphEditor(window, context, graph);
 
-    graphEditor.print();
-
-    
-
 
     while (window.isOpen()) {
         sf::Event event;

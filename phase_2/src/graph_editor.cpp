@@ -32,24 +32,6 @@ void GraphEditor::update() {
     // Update logic, if any
 }
 
-void GraphEditor::display() {
-
-    window.draw(context);
-    graph.draw(window);
-
-
-    if (hovered) {
-        hovered->draw(window, 18, sf::Color::Black, false, true);
-    }
-
-    if (selected) {
-        selected->draw(window, 18, sf::Color::Black, true, false);
-    }
-
-    window.display();
-    
-}
-
 void GraphEditor::handleMouseMove(const sf::Event& event) {
     mouse = sf::Mouse::getPosition(window);
     
@@ -65,18 +47,20 @@ void GraphEditor::handleMouseDown(const sf::Event& event) {
     if (event.mouseButton.button == sf::Mouse::Left) {
         Point mousePoint(event.mouseButton.x, event.mouseButton.y);
         if (hovered) {
-            selected = hovered;
+            select(hovered);
             dragging = true;
             return;
         }
         graph.addPoint(mousePoint);
-    
-        selected = graph.getPoint(mousePoint);  
+        select(graph.getPoint(mousePoint));
         hovered = selected;
     }
 
     if (event.mouseButton.button == sf::Mouse::Right) {
-        if (hovered) {
+        
+        if (selected) {
+            selected = nullptr;
+        } else if (hovered) {
             removePoint(hovered);
         }
 
@@ -85,6 +69,10 @@ void GraphEditor::handleMouseDown(const sf::Event& event) {
 }
 
 void GraphEditor::select(std::shared_ptr<Point> point) {
+    
+    if (selected) {
+        graph.tryAddSegment(Segment(selected, point));
+    }
     selected = point;
 }
 
@@ -95,4 +83,25 @@ void GraphEditor::removePoint(std::shared_ptr<Point> point) {
     if (hovered == point) hovered = nullptr;
     if (selected == point) selected = nullptr;
 
+}
+
+
+void GraphEditor::display() {
+
+    window.draw(context);
+    graph.draw(window);
+
+
+    if (hovered) {
+        hovered->draw(window, 18, sf::Color::Black, false, true);
+    }
+
+    if (selected) {
+    
+        Point intent = hovered ? *hovered : Point(mouse.x, mouse.y);
+        Segment(selected, std::make_shared<Point>(intent)).draw(window, 2, sf::Color::Black, true);
+        selected->draw(window, 18, sf::Color::Black, true, false);
+    }
+
+    window.display();
 }
