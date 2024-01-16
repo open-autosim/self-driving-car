@@ -4,7 +4,7 @@
 
 
 Button::Button(float x, float y, float width, float height, const std::string& label, const sf::Font& font, const sf::Color& normalColor, const sf::Color& hoverColor, const sf::Color& clickColor)
-    : normalColor(normalColor), hoverColor(hoverColor), clickColor(clickColor), isHovered(false), isClicked(false) {
+    : x(x), y(y), normalColor(normalColor), hoverColor(hoverColor), clickColor(clickColor), isHovered(false), isClicked(false) {
     button.setSize(sf::Vector2f(width, height));
     button.setPosition(x, y);
     button.setFillColor(normalColor);

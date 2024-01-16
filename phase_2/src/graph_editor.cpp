@@ -4,8 +4,8 @@
 
 
 
-GraphEditor::GraphEditor(sf::RenderWindow& window, sf::RectangleShape& context, Graph& graph)
-    : window(window), context(context), graph(graph), selected(nullptr), hovered(nullptr), dragging(false) {}
+GraphEditor::GraphEditor(Viewport& viewport, Graph& graph)
+    : viewport(viewport), graph(graph), selected(nullptr), hovered(nullptr), dragging(false), window(viewport.getWindow()) {}
 
 void GraphEditor::handleEvent(const sf::Event& event) {
     if (event.type == sf::Event::MouseMoved) {
@@ -28,14 +28,10 @@ void GraphEditor::print() {
     }
 }
 
-void GraphEditor::update() {
-    // Update logic, if any
-}
-
 void GraphEditor::handleMouseMove(const sf::Event& event) {
-    mouse = sf::Mouse::getPosition(window);
-    
-    hovered = Utils::getNearestPoint(Point(mouse.x, mouse.y), graph.getPoints(), 10);
+    // mouse = sf::Mouse::getPosition(window);
+    mouse = viewport.getMouse(event);
+    hovered = Utils::getNearestPoint(Point(mouse.x, mouse.y), graph.getPoints(), 10*viewport.getZoom());
     if (dragging && selected) {
         selected->x = mouse.x;
         selected->y = mouse.y;
@@ -44,18 +40,6 @@ void GraphEditor::handleMouseMove(const sf::Event& event) {
 
 void GraphEditor::handleMouseDown(const sf::Event& event) {
     
-    if (event.mouseButton.button == sf::Mouse::Left) {
-        Point mousePoint(event.mouseButton.x, event.mouseButton.y);
-        if (hovered) {
-            select(hovered);
-            dragging = true;
-            return;
-        }
-        graph.addPoint(mousePoint);
-        select(graph.getPoint(mousePoint));
-        hovered = selected;
-    }
-
     if (event.mouseButton.button == sf::Mouse::Right) {
         
         if (selected) {
@@ -64,6 +48,18 @@ void GraphEditor::handleMouseDown(const sf::Event& event) {
             removePoint(hovered);
         }
 
+    }
+    
+    if (event.mouseButton.button == sf::Mouse::Left) {
+        if (hovered) {
+            select(hovered);
+            dragging = true;
+            return;
+        }
+        Point mousePoint(mouse.x, mouse.y);
+        graph.addPoint(mousePoint);
+        select(graph.getPoint(mousePoint));
+        hovered = selected;
     }
         
 }
@@ -88,7 +84,6 @@ void GraphEditor::removePoint(std::shared_ptr<Point> point) {
 
 void GraphEditor::display() {
 
-    window.draw(context);
     graph.draw(window);
 
 
@@ -103,5 +98,11 @@ void GraphEditor::display() {
         selected->draw(window, 18, sf::Color::Black, true, false);
     }
 
-    window.display();
+    // window.display();
+}
+
+void GraphEditor::dispose() {
+
+    //clear points and segments
+    graph.dispose();
 }

@@ -18,6 +18,17 @@ std::shared_ptr<Point> Utils::getNearestPoint(const Point& loc, const std::vecto
             nearest = point;
         }
     }
-
     return nearest;
+}
+
+Point Utils::subtract(const Point& p1, const Point& p2) {
+    return Point(p1.x - p2.x, p1.y - p2.y);
+}
+
+Point Utils::add(const Point& p1, const Point& p2) {
+    return Point(p1.x + p2.x, p1.y + p2.y);
+}
+
+Point Utils::scale(const Point& p, double scaler) {
+    return Point(p.x * scaler, p.y * scaler);
 }

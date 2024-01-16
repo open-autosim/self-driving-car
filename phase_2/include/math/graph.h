@@ -26,9 +26,9 @@ public:
     void removePoint(const Point& point);
     std::vector<Segment> getSegmentsWithPoint(const Point& point) const;
 
-
-
     void draw(sf::RenderWindow& window) const;
+
+    void dispose(); 
 };
 
 #endif // GRAPH_H

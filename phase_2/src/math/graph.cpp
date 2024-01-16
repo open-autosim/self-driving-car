@@ -90,3 +90,8 @@ void Graph::draw(sf::RenderWindow& window) const {
         point->draw(window);
     }
 }
+
+void Graph::dispose() {
+    points.clear();
+    segments.clear();
+}

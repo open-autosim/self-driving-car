@@ -5,19 +5,21 @@
 #include <memory> // For std::shared_ptr
 #include "math/graph.h"
 #include "math/utils.h"
+#include "viewport.h"
 
 class GraphEditor {
 public:
-    GraphEditor(sf::RenderWindow& window, sf::RectangleShape& context, Graph& graph);
+    GraphEditor(Viewport& viewport, Graph& graph);
 
     void handleEvent(const sf::Event& event);
-    void update();
     void display();
     void print();
+    void dispose();
 
 private:
+
+    Viewport& viewport;
     sf::RenderWindow& window;
-    sf::RectangleShape& context;
     Graph& graph;
 
     std::shared_ptr<Point> selected;

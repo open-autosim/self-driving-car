@@ -10,6 +10,9 @@ public:
     
     Button(float x, float y, float width, float height, const std::string& label, const sf::Font& font, const sf::Color& normalColor, const sf::Color& hoverColor, const sf::Color& clickColor);
 
+    float x;
+    float y;
+    
     void draw(sf::RenderWindow& window);
     void handleEvent(const sf::Event& event, const sf::RenderWindow& window);
     void setOnClick(const std::function<void()>& callback);
