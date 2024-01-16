@@ -4,6 +4,9 @@
 #include <vector>
 #include <memory>
 #include "primitives/segment.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 class Graph {
     std::vector<std::shared_ptr<Point>> points;
@@ -11,6 +14,8 @@ class Graph {
 
 public:
     Graph(const std::vector<std::shared_ptr<Point>>& points, const std::vector<Segment>& segments);
+    // add default constructor
+    Graph() {}
 
     const std::vector<std::shared_ptr<Point>>& getPoints() const { return points; }
     std::vector<Segment>& getSegments() { return segments; }
@@ -29,6 +34,12 @@ public:
     void draw(sf::RenderWindow& window) const;
 
     void dispose(); 
+
+
+    template<class Archive>
+    void serialize(Archive & archive) {
+        archive(points, segments); // Serialize the points and segments
+    }
 };
 
 #endif // GRAPH_H

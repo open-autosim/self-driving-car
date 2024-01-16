@@ -105,4 +105,7 @@ void GraphEditor::dispose() {
 
     //clear points and segments
     graph.dispose();
+    //clear selected and hovered
+    selected = nullptr;
+    hovered = nullptr;
 }

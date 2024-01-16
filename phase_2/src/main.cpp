@@ -7,17 +7,34 @@
 #include "graph_editor.h"
 #include "viewport.h"
 
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <fstream>
+
 #include "imgui.h"
 // #include "imgui_stdlib.h"
-#include "imgui-SFML/imgui-SFML.h"
+#include "imgui-sfml/imgui-SFML.h"
 
-void save() {
-    std::cout << "Save button pressed!" << std::endl;
+void saveGraph(const Graph& graph, const std::string& filename) {
+    std::ofstream os(filename, std::ios::binary);
+    cereal::BinaryOutputArchive archive(os);
+    archive(graph);
+    std::cout << "Graph saved to " << filename << std::endl;
 }
 
-void dispose() {
-    std::cout << "Dispose button pressed!" << std::endl;
+bool loadGraph(Graph& graph, const std::string& filename) {
+    std::ifstream is(filename, std::ios::binary);
+    if (!is) {
+        std::cout << "File not found: " << filename << std::endl;
+        return false; // File not found
+    }
+    cereal::BinaryInputArchive archive(is);
+    archive(graph);
+    return true;
 }
+
+
 
 
 int main() {
@@ -35,15 +52,16 @@ int main() {
     float buttonSpacing = 10;
     float buttonYPosition = 10;
 
-    auto p1 = std::make_shared<Point>(500, 500);
-    auto p2 = std::make_shared<Point>(800, 400);
-    auto p3 = std::make_shared<Point>(300, 300);
-    auto p4 = std::make_shared<Point>(600, 700);
-    Segment s1(p1, p2);
-    Segment s2(p2, p3);
-    Segment s3(p3, p4);
-    Segment s4(p4, p1);
-    Graph graph({p1, p2, p3, p4}, {s1, s2, s3, s4});
+    // auto p1 = std::make_shared<Point>(500, 500);
+    // auto p2 = std::make_shared<Point>(800, 400);
+    // auto p3 = std::make_shared<Point>(300, 300);
+    // auto p4 = std::make_shared<Point>(600, 700);
+
+    //load graph info from file
+    Graph graph;
+    if (!loadGraph(graph, "graph_data.bin")) {
+        std::cout << "No saved graph found, starting with a new graph." << std::endl;
+    }
     Viewport viewport(window);
     GraphEditor graphEditor(viewport, graph);
 
@@ -82,10 +100,10 @@ int main() {
         // ImGui window
         ImGui::Begin("Control Panel");
         if (ImGui::Button("Save")) {
-            save();
+            saveGraph(graph, "graph_data.bin");
         }
         if (ImGui::Button("Dispose")) {
-            dispose();
+            graphEditor.dispose();
         }
         ImGui::End();
 
