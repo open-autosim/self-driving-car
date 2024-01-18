@@ -1,39 +1,27 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "math/graph.h"
 #include <cstdlib>
 #include <ctime>
-#include "utils/button.h"
-#include "graph_editor.h"
-#include "viewport.h"
 
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <fstream>
+#include "primitives/polygon.h"
+#include "editors/graph_editor.h"
+#include "editors/stop_editor.h"
+#include "math/graph.h"
+#include "viewport.h"
+#include "world.h"
+#include "primitives/envelope.h"
+#include "editors/marking_editor.h"
+#include "editors/crossing_editor.h"
+#include "editors/start_editor.h"
+#include "editors/light_editor.h"   
+#include "editors/parking_editor.h" 
+#include "editors/target_editor.h"
+#include "editors/yield_editor.h"
+#include "markings/marking.h"
 
 #include "imgui.h"
 // #include "imgui_stdlib.h"
 #include "imgui-sfml/imgui-SFML.h"
-
-void saveGraph(const Graph& graph, const std::string& filename) {
-    std::ofstream os(filename, std::ios::binary);
-    cereal::BinaryOutputArchive archive(os);
-    archive(graph);
-    std::cout << "Graph saved to " << filename << std::endl;
-}
-
-bool loadGraph(Graph& graph, const std::string& filename) {
-    std::ifstream is(filename, std::ios::binary);
-    if (!is) {
-        std::cout << "File not found: " << filename << std::endl;
-        return false; // File not found
-    }
-    cereal::BinaryInputArchive archive(is);
-    archive(graph);
-    return true;
-}
-
 
 
 
@@ -45,25 +33,35 @@ int main() {
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-
-    // Proportions and margins
-    float buttonWidth = 150;
-    float buttonHeight = 30;
-    float buttonSpacing = 10;
-    float buttonYPosition = 10;
-
-    // auto p1 = std::make_shared<Point>(500, 500);
-    // auto p2 = std::make_shared<Point>(800, 400);
-    // auto p3 = std::make_shared<Point>(300, 300);
-    // auto p4 = std::make_shared<Point>(600, 700);
-
     //load graph info from file
     Graph graph;
-    if (!loadGraph(graph, "graph_data.bin")) {
-        std::cout << "No saved graph found, starting with a new graph." << std::endl;
-    }
+    World world(graph);
     Viewport viewport(window);
-    GraphEditor graphEditor(viewport, graph);
+
+    if (!world.load()) {
+        std::cout << "No saved world found, starting with a new world." << std::endl;
+    } else {
+        viewport.setZoom(world.zoom);
+        // viewport.setOffset(world.offset);
+    }
+    
+    // World world(graph);
+    
+    GraphEditor graphEditor(world, viewport, graph);
+    graphEditor.disable();
+
+    std::vector<std::unique_ptr<MarkingEditor>> editors;
+    editors.push_back(std::make_unique<StopEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<CrossingEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<StartEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<LightEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<ParkingEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<TargetEditor>(window, world, viewport));
+    editors.push_back(std::make_unique<YieldEditor>(window, world, viewport));
+
+
+    std::string oldGraphHash = graph.hash();
+
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
@@ -85,6 +83,9 @@ int main() {
                     event.type == sf::Event::MouseMoved) {
                     viewport.handleEvent(event);
                     graphEditor.handleEvent(event);
+                    for (auto& editor : editors) {
+                        editor->handleEvent(event);
+                    }
                 }
             }
 
@@ -100,18 +101,89 @@ int main() {
         // ImGui window
         ImGui::Begin("Control Panel");
         if (ImGui::Button("Save")) {
-            saveGraph(graph, "graph_data.bin");
+            // graph.save("graph_data.bin");
+            world.zoom = viewport.getZoom();
+            // world.offset = viewport.offset;
+            world.save();
+            
         }
         if (ImGui::Button("Dispose")) {
             graphEditor.dispose();
+            world.clearWorld();
         }
+        if (ImGui::Button("Refresh")) {
+            // world.clearWorld();
+            world.load();
+        }
+        // Graph Editor Button
+        if (graphEditor.isMouseEnabled()) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+            if (ImGui::Button("Graph Editor: Enabled")) {
+                graphEditor.disable();
+                for (auto& editor : editors) {
+                    editor->disable(); // 
+                }
+            }
+            ImGui::PopStyleColor();
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
+            if (ImGui::Button("Graph Editor: Disabled")) {
+                graphEditor.enable();
+                for (auto& editor : editors) {
+                    editor->disable(); // Disable other editors
+                }
+            }
+            ImGui::PopStyleColor();
+        }
+
+        // Iterate through other editors
+        for (auto& editor : editors) {
+            std::string editorName = editor->getName(); // Assuming getName() is implemented
+            if (editor->isMouseEnabled()) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                if (ImGui::Button((editorName + ": Enabled").c_str())) {
+                    editor->disable();
+                    graphEditor.disable(); // Disable Graph Editor
+                    //disble other editors
+
+                }
+                ImGui::PopStyleColor();
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
+                if (ImGui::Button((editorName + ": Disabled").c_str())) {
+                    editor->enable();
+                    graphEditor.disable(); // Disable Graph Editor
+                    //disble other editors
+                    for (auto& otherEditor : editors) {
+                        if (otherEditor != editor) {
+                            otherEditor->disable();
+                        }
+                    }
+                }
+                ImGui::PopStyleColor();
+            }
+        }
+
         ImGui::End();
 
 
         window.clear(sf::Color(42, 170, 85));
-
         viewport.reset();
-        graphEditor.display();
+
+        if (graph.hash() != oldGraphHash) {
+            world.generate();
+            oldGraphHash = graph.hash();
+        }
+
+        Point viewPoint = Utils::scale(viewport.getOffset(), -1);
+        world.draw(window, viewPoint);
+        graphEditor.display();       
+
+        for (auto& editor : editors) {
+            editor->display();
+        }
+        // stopEditor.display();
+        // crossingEditor.display();
 
         ImGui::SFML::Render(window);
 

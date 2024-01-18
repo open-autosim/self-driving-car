@@ -95,3 +95,30 @@ void Graph::dispose() {
     points.clear();
     segments.clear();
 }
+
+void Graph::save(const std::string& filename) const {
+    std::ofstream os(filename, std::ios::binary);
+    cereal::BinaryOutputArchive archive(os);
+    archive(*this);  // Serialize the current object
+    std::cout << "Graph saved to " << filename << std::endl;
+}
+
+bool Graph::load(const std::string& filename) {
+    std::ifstream is(filename, std::ios::binary);
+    if (!is) {
+        std::cout << "File not found: " << filename << std::endl;
+        return false; // File not found
+    }
+    cereal::BinaryInputArchive archive(is);
+    archive(*this);  // Deserialize into the current object
+    return true;
+}
+
+std::string Graph::hash() const {
+    std::stringstream ss;
+    {
+        cereal::JSONOutputArchive archive(ss);
+        archive(*this);
+    }
+    return ss.str();
+}

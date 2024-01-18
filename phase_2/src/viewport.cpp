@@ -1,6 +1,7 @@
 #include "viewport.h"
 #include <iostream>
 #include <cmath> // for std::signbit
+#include <algorithm> // Include the <algorithm> header for std::max
 
 Viewport::Viewport(sf::RenderWindow& window) 
         : window(window), zoom(1), center(window.getSize().x / 2, window.getSize().y / 2), 
@@ -16,35 +17,34 @@ void Viewport::handleEvent(const sf::Event& event) {
         handleMouseUp(event);
     } else if (event.type == sf::Event::MouseMoved) {
         handleMouseMove(event);
-    } else if (event.type == sf::Event::Resized) {
-    
+    } 
+}
+
+Point Viewport::getMouse(const sf::Event& event, bool subtractDragOffset) {
+
+    sf::Vector2f worldMouse = window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
+    Point p(worldMouse.x, worldMouse.y);
+   
+    if (subtractDragOffset) {
+        p = Utils::subtract(p, drag.offset);
     }
+    return p;
 }
 
-void Viewport::handleMouseWheel(const sf::Event& event) {
-    // Accumulate the delta values
-    #include <algorithm> // Include the <algorithm> header for std::max
 
-    scrollAccumulator += event.mouseWheelScroll.delta;
-
-    // Check if the accumulated value has reached the threshold
-    if (std::abs(scrollAccumulator) >= scrollThreshold) {
-        int sign = scrollAccumulator > 0 ? -1 : 1;
-        scrollAccumulator = 0.0f;
-
-        float step = 0.1f;
-        zoom += sign * step;
-        zoom = std::max(1.0f, std::min(5.0f, zoom)); 
-        
-    }
+Point Viewport::getOffset() const {
+    return Utils::add(offset, drag.offset);
 }
 
-sf::Vector2i Viewport::getMouse(const sf::Event& event, bool subtractDragOffset) {
-    sf::Vector2i mouse = sf::Mouse::getPosition(window);
-    sf::Vector2f worldMouse = window.mapPixelToCoords(mouse);
 
-    return sf::Vector2i(worldMouse);
+void Viewport::reset() {
+    sf::View view = window.getDefaultView();
+    view.setCenter(center.x, center.y);
+    view.zoom(zoom);
+    window.setView(view);
+
 }
+
 
 void Viewport::handleMouseDown(const sf::Event& event) {
 
@@ -58,31 +58,34 @@ void Viewport::handleMouseDown(const sf::Event& event) {
 
 void Viewport::handleMouseMove(const sf::Event& event) {
     
-    if (drag.active) {
-
-        drag.end = Point(event.mouseMove.x, event.mouseMove.y);
-        drag.offset = Utils::subtract(drag.end, drag.start);
-        drag.offset = Utils::scale(drag.offset, zoom);
-        center = Utils::subtract(center, drag.offset);
-        drag.start = drag.end;
+     if (drag.active) {
+        
+        Point currentMouse(event.mouseMove.x, event.mouseMove.y);
+        Point movement = Utils::subtract(currentMouse, drag.start);
+        movement = Utils::scale(movement, zoom);
+        drag.offset = Utils::add(drag.offset, movement);
+        // Update the center position
+        center = Utils::subtract(center, movement);
+        drag.start = currentMouse;
     }
 }
 
 void Viewport::handleMouseUp(const sf::Event& event) {
-    
     if (drag.active) { 
+        
         offset = Utils::add(offset, drag.offset);
-        //reset drag
-        drag.active = false;
-        drag.start = Point(0, 0);
-        drag.end = Point(0, 0);
-        drag.offset = Point(0, 0);
+        drag = {Point(0, 0), Point(0, 0), Point(0, 0), false};    
     }
 }
 
-void Viewport::reset() {
-    sf::View view = window.getDefaultView();
-    view.zoom(zoom);
-    view.setCenter(center.x, center.y);
-    window.setView(view);
+void Viewport::handleMouseWheel(const sf::Event& event) {
+    
+    float zoomStep = 0.1f;
+    if (event.mouseWheelScroll.delta < 0) {
+        zoom += zoomStep;
+    } else if (event.mouseWheelScroll.delta > 0) {
+        zoom -= zoomStep;
+    }
+    zoom = std::max(1.0f, std::min(5.0f, zoom));
 }
+

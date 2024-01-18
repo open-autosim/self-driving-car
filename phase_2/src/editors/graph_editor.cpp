@@ -1,13 +1,29 @@
 // GraphEditor.cpp
 #include <iostream>
-#include "graph_editor.h"
+#include "editors/graph_editor.h"
 
 
 
-GraphEditor::GraphEditor(Viewport& viewport, Graph& graph)
-    : viewport(viewport), graph(graph), selected(nullptr), hovered(nullptr), dragging(false), window(viewport.getWindow()) {}
+GraphEditor::GraphEditor(World& world, Viewport& viewport, Graph& graph)
+    : world(world), mouseEnabled(true), viewport(viewport), graph(graph), selected(nullptr), hovered(nullptr), dragging(false), window(viewport.getWindow()) {}
+
+
+void GraphEditor::enable() {
+    mouseEnabled = true;
+}
+
+void GraphEditor::disable() {
+    mouseEnabled = false;
+}
 
 void GraphEditor::handleEvent(const sf::Event& event) {
+
+    if (!mouseEnabled) {
+        selected = nullptr;
+        hovered = nullptr;
+        return;
+    }
+    
     if (event.type == sf::Event::MouseMoved) {
         handleMouseMove(event);
     } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -17,20 +33,11 @@ void GraphEditor::handleEvent(const sf::Event& event) {
     }
 }
 
-void GraphEditor::print() {
-    std::cout << "Points: " << std::endl;
-    for (const auto& point : graph.getPoints()) {
-        std::cout << point->x << ", " << point->y << std::endl;
-    }
-    std::cout << "Segments: " << std::endl;
-    for (const auto& segment : graph.getSegments()) {
-        std::cout << segment.p1->x << ", " << segment.p1->y << " - " << segment.p2->x << ", " << segment.p2->y << std::endl;
-    }
-}
-
 void GraphEditor::handleMouseMove(const sf::Event& event) {
     // mouse = sf::Mouse::getPosition(window);
-    mouse = viewport.getMouse(event);
+
+    Point p = viewport.getMouse(event, true);
+    mouse = sf::Vector2i(p.x, p.y);
     hovered = Utils::getNearestPoint(Point(mouse.x, mouse.y), graph.getPoints(), 10*viewport.getZoom());
     if (dragging && selected) {
         selected->x = mouse.x;
@@ -47,7 +54,6 @@ void GraphEditor::handleMouseDown(const sf::Event& event) {
         } else if (hovered) {
             removePoint(hovered);
         }
-
     }
     
     if (event.mouseButton.button == sf::Mouse::Left) {
@@ -72,7 +78,6 @@ void GraphEditor::select(std::shared_ptr<Point> point) {
     selected = point;
 }
 
-
 void GraphEditor::removePoint(std::shared_ptr<Point> point) {
     
     graph.removePoint(*point);
@@ -81,24 +86,21 @@ void GraphEditor::removePoint(std::shared_ptr<Point> point) {
 
 }
 
-
 void GraphEditor::display() {
 
-    graph.draw(window);
+    if (!mouseEnabled) return;
 
+    graph.draw(window);
 
     if (hovered) {
         hovered->draw(window, 18, sf::Color::Black, false, true);
     }
 
     if (selected) {
-    
         Point intent = hovered ? *hovered : Point(mouse.x, mouse.y);
         Segment(selected, std::make_shared<Point>(intent)).draw(window, 2, sf::Color::Black, true);
         selected->draw(window, 18, sf::Color::Black, true, false);
     }
-
-    // window.display();
 }
 
 void GraphEditor::dispose() {
@@ -108,4 +110,6 @@ void GraphEditor::dispose() {
     //clear selected and hovered
     selected = nullptr;
     hovered = nullptr;
+
+    world.clearWorld();
 }

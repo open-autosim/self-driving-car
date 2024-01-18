@@ -7,6 +7,10 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
+#include <functional>
+#include <fstream>
+#include <cereal/archives/json.hpp>
+#include <sstream>
 
 class Graph {
     std::vector<std::shared_ptr<Point>> points;
@@ -18,6 +22,8 @@ public:
     Graph() {}
 
     const std::vector<std::shared_ptr<Point>>& getPoints() const { return points; }
+    const std::vector<Segment>& getSegments() const { return segments; } // Public getter for segments
+
     std::vector<Segment>& getSegments() { return segments; }
 
     std::shared_ptr<Point> getPoint(const Point& point) const;
@@ -40,6 +46,15 @@ public:
     void serialize(Archive & archive) {
         archive(points, segments); // Serialize the points and segments
     }
+
+    void save(const std::string& filename) const;
+    bool load(const std::string& filename);
+
+    std::string hash() const;
+
+    // custom hash for graph
+
 };
+
 
 #endif // GRAPH_H

@@ -5,6 +5,7 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
+#include <functional>
 
 class Point {
 public:
@@ -23,6 +24,8 @@ public:
     void serialize(Archive & archive) {
         archive(x, y); // Serialize the x and y coordinates
     }
+
 };
+
 
 #endif // POINT_H

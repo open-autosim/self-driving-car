@@ -10,14 +10,19 @@ public:
     Viewport(sf::RenderWindow& window);
 
     void reset();
-    sf::Vector2i getMouse(const sf::Event& event, bool subtractDragOffset = false);
+    Point getMouse(const sf::Event& event, bool subtractDragOffset = false);
     // Point getOffset() const;
     void handleEvent(const sf::Event& event);
 
     float getZoom() const { return zoom; }
     sf::RenderWindow& getWindow() const { return window; }
-    
 
+    Point getOffset() const;
+
+    //set zoom
+    void setZoom(float zoom) { this->zoom = zoom; }
+    void setOffset(Point offset) { this->offset = offset; }
+    
 private:
 
     sf::RenderWindow& window;
